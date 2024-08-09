@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\signin_controler;
 use App\Http\Controllers\API\signin_verification_code;
+use App\Http\Controllers\API\LoginControler;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,7 +20,7 @@ Route::get('/', function () {
 });
 
 Route::post('/signin_user',[signin_controler::class , "start_verification"]);
-Route::post('/login_user',[login_controler]::class , "" );
+Route::post('/login_user',[LoginControler::class , "check_user"] );
 
 
 
