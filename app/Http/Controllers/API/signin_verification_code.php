@@ -82,7 +82,7 @@ class signin_verification_code extends Controller
         
        
 
-        $user_name = $user_data['name'];
+        $user_name = $user_data['username'];
         $user_email = $user_data['email'];
 
         
@@ -99,10 +99,11 @@ Please enter this code on the sign-in page to verify your email address. If you 
 If you have any questions or need assistance, feel free to contact our support team.
 
 Best regards",
-'name' => "$user_name",
+'fname' => "$user_name",
 'verificationCode' => "$very_code"
 
         ];
+      
         Mail::to("$user_email")->send(new signin_verification_email_code($details) );
         return true ;
     }

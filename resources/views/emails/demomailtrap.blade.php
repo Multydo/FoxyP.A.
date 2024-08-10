@@ -48,7 +48,7 @@
             <h1>Verification Email</h1>
         </div>
         <div class="content">
-            <p>Dear {{ $details['name'] }},</p>
+            <p>Dear {{ $details['fname'] }},</p>
 
             <p>Thank you for registering with [Your Company/Website Name]. To complete your sign-in process, please use
                 the following verification code:</p>

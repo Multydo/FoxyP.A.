@@ -20,7 +20,7 @@ Route::get('/', function () {
 });
 
 Route::post('/signin_user',[signin_controler::class , "start_verification"]);
-Route::post('/login_user',[LoginControler::class , "check_user"] );
+Route::post('/login_user',[LoginControler::class , "login"] );
 
 
 

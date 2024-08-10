@@ -39,11 +39,13 @@ class signin_controler extends Controller
             "key" => "user_data",
             "data" => ""
         ];
+        
         $session_req = new Session_controler;
         $session_result = $session_req -> session_selector("get" , $data);
         //return response() -> json($session_result);
-
+//dd($session_result);
         $new_user = User:: create ($session_result);
+        $token = $new_user->createToken($session_result['username'])->plainTextToken;
 
         
         
