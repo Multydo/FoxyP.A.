@@ -56,7 +56,29 @@ class signin_controler extends Controller
     }
     public function start_verification(SigninRequest $user_data_json){
 
+
         $user_data = $user_data_json->json()->all();
+        $user_email = $user_data['email'];
+        $user_name = $user_data['username'];
+
+        $user_email_eixists = User::where('email',$user_email)->exists();
+        if($user_email_eixists){
+            return response()-> json([
+                "error" => "user email alredy exists",
+                400
+            ]);
+        }
+
+        $user_name_eixists = User::where('email',$user_name)->exists();
+        if($user_name_eixists){
+            return response()-> json([
+                "error" => "user name alredy exists",
+                400
+            ]);
+        }
+
+
+
         $session_req = new Session_controler;
          $data = [
             "key" => "user_data",
