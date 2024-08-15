@@ -63,7 +63,7 @@ class signin_controler extends Controller
           
         }else{
             $error = [
-                "message" => "error in setting the user tables",
+                "message" => "internal server error (error in setting the user tables)",
                 "code" => 500,
                 "status"=>false
             ];
@@ -86,7 +86,7 @@ class signin_controler extends Controller
         $user_email_eixists = User::where('email',$user_email)->exists();
         if($user_email_eixists){
             return response()-> json([
-                "error" => "user email alredy exists",
+                "message" => "user email alredy exists",
                 
             ],409);
         }
@@ -94,7 +94,7 @@ class signin_controler extends Controller
         $user_name_eixists = User::where('email',$user_name)->exists();
         if($user_name_eixists){
             return response()-> json([
-                "error" => "user name alredy exists",
+                "message" => "user name alredy exists",
                 
             ],409);
         }

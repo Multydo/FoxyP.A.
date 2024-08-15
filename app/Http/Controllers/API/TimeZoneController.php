@@ -35,7 +35,7 @@ class TimeZoneController extends Controller
 
         }else{
             return response()->json([
-                "error"=> "internal server error (failed to input timezon to session)"
+                "message"=> "internal server error (failed to input timezon to session)"
                 
             ],500);
         

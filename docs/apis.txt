@@ -1,0 +1,152 @@
+1. /signin_user
+
+    *info:
+
+    will statr the signining in process no token needed it takes a json request in the form of :
+
+    {
+        "fname" : "jack",
+        "lname" : "smith",
+        "username" : "jack324",
+        "email" : "example@example.com",
+        "password" : "12345678",
+        
+    }
+
+    it has the clasic fname and lname , the username is a unique value identifier setted by the user ,email is 
+    unique value , pass is min length 8 char
+
+    *responses:
+
+        **email alredy exists error : 
+            "message" => "user email alredy exists"
+            (code:409)
+        
+        **username alredy exists error:
+            "message" => "user name alredy exists"
+            (code:409)
+        
+        **email sent to the user:
+            "messange" => "email sent sucsessfuly"
+            (code:200)
+
+        **problem happened and email was not sent correctly:
+            "message"=>"internal server error (mail not sent)"
+            (code:500)
+
+        **problem happened in the session during ( saving / geting / deleting ):
+            "massage"=>"internal server error (problem in session)" 
+            (code:500)
+    
+
+
+
+2. /verifying
+
+    *info:
+        this api will request the 4 digit verification code sent to the user when using ( api 1 ) . it is the second step
+        in signing in the user it will check the saved and the inputed code if it failed the user data that has 
+        been saved temporarly in the session will be deleted including the old code so the user will need to 
+        sign in from the bigining , if the checking was successful the user data will be saved and 2 privalte DB tables
+        will be created fr his future data . api does not need a token but it will need a json array in the form:
+
+        {
+            "code" :"8713"
+        }
+
+    *resources:
+        **verification and table creation was successful:
+            "message" => "tables are done"
+            "token" => USER_CRESTED_TOKEN
+            (code:201)
+
+        **setting the user ables failed :
+            "message" => "internal server error (error in setting the user tables)"
+            (code:500)
+
+        **user inputed a wrong code thus verification failed:
+            "message"=>"verification code does not match"
+            (code:401)
+        
+        **problem happened in session:
+            "message"=>"internal server error (problem in session)"
+            (code:500)
+
+3./save_settings
+
+    *info:
+
+        this api is the last step of signing in the user in needs the token sent from the (api 2) and a json array 
+        listed in it the time zone code of the user (IT NEED TO BE AN INTIGER NUMBER ex: 3,2,-1,-4,5) and the json 
+        array need to take the form of :
+
+        {
+            "timezone": 3
+        }
+
+    *responses:
+        
+        **the default user seettings was saved successfuly and user can login:
+            "massag"=>"setting data saved"
+            (code:200)
+        
+        **problem in server caused the settings to not be saved :
+            "massag"=>"internal serer error (settings data not saved)"
+            (code:500)
+
+        **problem in session aused to a failure in saving the user time zone code:
+            "message"=> "internal server error (failed to input timezon to session)"
+            (code:500)
+
+4./autoLogin
+
+    *info:
+        
+        to make lunching the app easier the user can loign with his saved token on his phone this functionality
+        will fail if the user last time visiting the app is more than two weeks. the api needs the user token 
+        and no need to pass an thins in the body of the json request an empty array will work and any error 
+        will cause the user to login manualy (api 5).
+
+    *responses:
+
+        **user last time visiting the app is more than 2 weeks so his token expired:
+            "message"=>"token expired"
+            (code:401)
+        
+        **problem in server the (last_used_at) slot in the DB is null :
+            "massage"=>"internal server error (token last_used_at is null)"
+            (code:500)
+        
+        **user is verified and can go to home page :
+            "message"=>"user is good to go"
+            (code:200)
+
+        **token was not found in the DB:
+            "message" => "token was not found"
+            (code:401)
+
+5./login_user
+
+    *info:
+
+        this api will login the user maualy by him entering his email and password .the request does not need a token 
+        but it need a json array in the form:
+
+        {
+    
+            "email" : "example@example.com",
+            "password" : "12345678"
+    
+        }
+
+    *responses:
+
+        **user is loged in and got a new token :
+            "massage"=>"user loged in"
+            "token" => USER_NEW_TOKEN
+            (code:200)
+        
+        **email or password do not match:
+            "message"=>"email or password do not match"
+            (code:401)
+        

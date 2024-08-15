@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
          "/getUserInfo",
          "/testing",
          "/save_settings",
-         "/build_tables"
+         "/build_tables",
+         "/autoLogin"
     ];
 }

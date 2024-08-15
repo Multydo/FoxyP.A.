@@ -31,6 +31,7 @@ Route::post('/signin_user',[signin_controler::class , "start_verification"]);
 Route::post('/login_user',[LoginControler::class , "login"] );
 Route::post('/save_settings', [TimeZoneController::class, 'getTimeZone']);
 Route::post('/verifying',[signin_controler::class , "check_code"]);
+Route::post('/autoLogin',[LoginControler::class, "tokenLogin"]);
 
 
 
