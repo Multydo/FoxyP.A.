@@ -30,13 +30,15 @@ Route::get('/', function () {
 Route::post('/signin_user',[signin_controler::class , "start_verification"]);
 Route::post('/login_user',[LoginControler::class , "login"] );
 Route::post('/save_settings', [TimeZoneController::class, 'getTimeZone']);
-Route::post('/build_tables',[SetUserTables::class , "UserTableLucher"]);
+Route::post('/verifying',[signin_controler::class , "check_code"]);
+
+
 
 
 //testing links not allowed in production
 
 
-Route::post('/verifying',[signin_controler::class , "check_code"]);
+
 Route::get('/store',[signin_controler::class , "store"]);
 Route::post('/getUserInfo',[testGetInfo::class , "getUserInfo"]);
 Route::post('/testing',[SetUserTables::class , "UserTableLucher"]);

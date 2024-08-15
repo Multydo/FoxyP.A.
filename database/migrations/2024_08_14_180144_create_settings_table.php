@@ -27,6 +27,14 @@ return new class extends Migration
             $table ->string('friday');
             $table ->string('saturday');
             $table ->string('sunday');
+            $table ->boolean('max_duration_swicth');
+            $table ->time('max_duration_time');
+            $table ->boolean('min_time_switch');
+            $table ->time('min_time');
+            $table ->boolean('app_fixed_duration_switch');
+            $table ->time('app_fixed_duration');
+            $table ->boolean('allow_dm');
+            
             $table->timestamps();
         });
     }

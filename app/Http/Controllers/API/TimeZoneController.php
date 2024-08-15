@@ -11,6 +11,7 @@ class TimeZoneController extends Controller
 {
     public function getTimeZone(Request $request){
        $userToken = $request->bearerToken();
+       
         $timezoneOffset = $request->input('timezone');
         $data = [
             "key" => "time_zone",
@@ -21,13 +22,22 @@ class TimeZoneController extends Controller
 
         if ($session_result){
             $userTable = new SetUserTables;
-            $userTable->fillSettings($timezoneOffset,$request);
+            $status = $userTable->fillSettings($timezoneOffset,$request);
+            if($status){
+                return response()->json([
+                    "massage"=>"setting data saved"
+                ],200);
+            }else{
+                 return response()->json([
+                    "massage"=>"internal serer error (settings data not saved)"
+                ],500);
+            }
 
         }else{
             return response()->json([
-                "error"=> "failed to input timezon to session"
-                ,400
-            ]);
+                "error"=> "internal server error (failed to input timezon to session)"
+                
+            ],500);
         
         }
     }

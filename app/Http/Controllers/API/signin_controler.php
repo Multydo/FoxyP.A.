@@ -9,6 +9,7 @@ use App\Http\Controllers\API\Session_controler;
 use App\Models\User;
 use App\Http\Requests\SigninRequest;
 use App\Http\Requests\SigninVCodeRequest;
+use App\Http\Controllers\API\SetUserTables;
 
 class signin_controler extends Controller
 {
@@ -46,8 +47,28 @@ class signin_controler extends Controller
 //dd($session_result);
         $new_user = User:: create ($session_result);
         $token = $new_user->createToken($session_result['username'])->plainTextToken;
+        $setTables = new SetUserTables;
+        $status = $setTables ->UserTableLucher($token);
 
-        
+        if($status){
+            $result = [
+                "message" => "tables are done",
+                "token" => $token,
+                "code" => 201,
+                "status"=>true
+            ];
+
+
+          return $result ;
+          
+        }else{
+            $error = [
+                "message" => "error in setting the user tables",
+                "code" => 500,
+                "status"=>false
+            ];
+            return $error;
+        }
         
         
         
@@ -55,6 +76,7 @@ class signin_controler extends Controller
         
     }
     public function start_verification(SigninRequest $user_data_json){
+        
 
 
         $user_data = $user_data_json->json()->all();
@@ -65,22 +87,22 @@ class signin_controler extends Controller
         if($user_email_eixists){
             return response()-> json([
                 "error" => "user email alredy exists",
-                400
-            ]);
+                
+            ],409);
         }
 
         $user_name_eixists = User::where('email',$user_name)->exists();
         if($user_name_eixists){
             return response()-> json([
                 "error" => "user name alredy exists",
-                400
-            ]);
+                
+            ],409);
         }
 
 
 
         $session_req = new Session_controler;
-         $data = [
+        $data = [
             "key" => "user_data",
             "data" => $user_data
 
@@ -89,47 +111,82 @@ class signin_controler extends Controller
         if($session_result){
 
         
-        $veri_code = new signin_verification_code;
+            $veri_code = new signin_verification_code;
 
-        $veri_code_stat = $veri_code -> sendEmail($user_data);
+            $veri_code_stat = $veri_code -> sendEmail($user_data);
 
-        return "all set to check ,  $veri_code_stat ";
+            if($veri_code_stat){
+                return response()->json([
+                "messange" => "email sent sucsessfuly",
+
+                ],200);
+            }else{
+                return response()->json([
+                "message"=>"internal server error (mail not sent)"
+
+                ],500);
+            }
+
+        
         }else{
-            return "problem in session";
+            return response()->json([
+               "massage"=>"internal server error (problem in session)" 
+            ],500);
         }
         
 
     }
     public function check_code(SigninVCodeRequest $user_side_verification_code_json){
-      $user_side_verification_code = $user_side_verification_code_json ->json()->all();
+        $user_side_verification_code = $user_side_verification_code_json ->json()->all();
      
         $session_req = new Session_controler;
-       $data = [
+        $data = [
             "key" => "very_code",
             "data" => ""
 
         ];
-      $session_result = $session_req -> session_selector("get" ,$data );
-      if($session_result == $user_side_verification_code["code"]){
+        $session_result = $session_req -> session_selector("get" ,$data );
+        if($session_result == $user_side_verification_code["code"]){
 
          // if they mach sign in
-        $this -> store();
-    }else{
+            $status = $this -> store();
+            if($status['status']){
+                return response()->json([
+                    "message"=>$status['message'],
+                    "token" => $status['token'],
 
-        // flush data down :)
-        $session_req = new Session_controler;
-         $data = [
-            "key" => "",
-            "data" => ""
+                ],$status['code']);
+            }else{
+                return response()->json([
+                    "message"=>$status['message'],
+            
 
-        ];
-        $session_result = $session_req -> session_selector("flush" , $data);
-        if($session_result){
-        return "code does not mach !!";
-    }else{
-        return "WTF is going on";
-    }
-    }
+                ],$status['code']);
+            }
+
+        
+        }else{
+
+            // flush data down :)
+            $session_req = new Session_controler;
+            $data = [
+                "key" => "",
+                "data" => ""
+
+            ];
+            $session_result = $session_req -> session_selector("flush" , $data);
+            if($session_result){
+                 return response()->json([
+                    "message"=>"verification code does not match"
+                ],401);
+                
+            }else{
+               return response()->json([
+                "message"=>"internal server error (problem in session)"
+               ],500);
+               
+            }
+        }
 
 
     }
