@@ -1,5 +1,0 @@
-**the function (sendEmail) it will take the the user_data as perimeter will generate 
-a random number from (1000 to 9999) and saved in the session with the key(very_code)
-then it will take the user name and email from the taken data and place them in an 
-array to construck an email and send it with returning true if every ting compiled 
-without errors
