@@ -1,0 +1,34 @@
+**SIGN IN is performed by calling the api route (/signin_user) the it will run the 
+function(start_verification) in the api controller (signin_controler) and passing 
+the json data in this form : 
+{
+    "name" : "jack",
+        "email" : "example@gmail.com",
+        "password" : "abc",
+        "phone_num":"12345678"
+
+
+}
+
+**the function (start_verification) takes the json request and will save the user 
+data in a session by calling the function (session_selector) with protocole(put) 
+with passing the data with array in form : 
+$data = [
+            "key" => "user_data",
+            "data" => $user_data
+
+        ];
+in api controller (Session_controller) under the key (user_data) then it will call 
+another function (sendEmail) in the api controller (signin_verification_code) 
+
+**the function (check_code) takes the code given by the user in a json request with 
+the form:
+{
+"code" :"9820"
+}
+then it calles the session to take the saved verification code with key (very_code)
+if they are the same it will call the function store to sign in the user if they are 
+deferent it will flush the session data and return error message
+
+**the function (store) is the last step in signing in the function will call the session 
+to get the saved user data using the key (user-data) then it saves him in the database
