@@ -9,11 +9,13 @@ use App\Models\User;
 use App\Models\setting;
 use Throwable;
 use App\Models\followers_user;
+use App\Http\Controllers\API\getUserId;
 
 class SetUserTables extends Controller
 {
     public function UserTableLucher( $usertoken){
-        $userId_json = $this ->getId($usertoken);
+        $get_user_id = new getUserId;
+        $userId_json = $get_user_id -> getId($usertoken);
         $userId = $userId_json->getData(true);
         
         $result1 = $this -> UserAppointments($userId['id']);
@@ -27,7 +29,7 @@ class SetUserTables extends Controller
         }
 
     }
-    
+   /* 
     private function getId($usertoken){
         if (is_object($usertoken) && method_exists($usertoken, 'bearerToken')) {
     
@@ -59,7 +61,7 @@ class SetUserTables extends Controller
         }
 
         return response()->json(["id" =>$user->id]);
-    }
+    }*/
 
  
 

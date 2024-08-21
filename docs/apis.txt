@@ -149,4 +149,115 @@
         **email or password do not match:
             "message"=>"email or password do not match"
             (code:401)
-        
+
+6. /home 
+
+    *info:
+
+        this api will ge the user available appointments dates by just sending an empty request to it (token needed)
+
+    *responses:
+
+        **if data found:
+            {
+                "message" => "appointments found for user",
+                "status" => true,
+                "data" => {
+                    "2023-11-05",
+                    "2024-02-14",
+                    "2024-06-21",
+                    "2024-09-10"
+                }
+            }
+            code(200)
+
+        **if no data found:
+            "message" => "no appointments found for user",
+            "status" => false,
+            "data" => ""
+            code(200)
+
+7. /getSettings
+
+    *info:
+        this will get the settigns the user had setted to his acc the request can be empty all what is needed is the token
+
+    *responses:
+
+        **in case of Success:
+
+            {
+                "message" => "user settings were found",
+
+                "data" => {
+                    "work_from":"09:00:00",
+                    "work_to":"17:00:00",
+                    "break_time":"00:15:00",
+                    "time_zone":3,
+                    "logic":"appointment",
+                    "max_app":10,
+                    "monday":"accepted",
+                    "tuesday":"accepted",
+                    "wednesday":"accepted",
+                    "thursday":"accepted",
+                    "friday":"accepted",
+                    "saturday":"rejected",
+                    "sunday":"rejected",
+                    "max_duration_swicth":false,
+                    "max_duration_time":"00:00:00",
+                    "min_time_switch":false,
+                    "min_time":"00:00:00",
+                    "app_fixed_duration_switch":false,
+                    "app_fixed_duration":"00:00:00",
+                    "allow_dm":false
+                }
+            }
+            code(200)
+
+        **if no data found:
+            "message"=>"no content found"
+            code(204)
+        **user was not found or broken token:
+            "message"=>"user was not found or a broken token"
+            code(401)
+
+8. /saveSettings
+
+    *info :
+        this will save the setting of the user when he hit save the request need to have a token and take this form :
+
+        {
+                    "work_from":"09:00:00",
+                    "work_to":"17:00:00",
+                    "break_time":"00:15:00",
+                    "time_zone":3,
+                    "logic":"appointment",
+                    "max_app":10,
+                    "monday":"accepted",
+                    "tuesday":"accepted",
+                    "wednesday":"accepted",
+                    "thursday":"accepted",
+                    "friday":"accepted",
+                    "saturday":"rejected",
+                    "sunday":"rejected",
+                    "max_duration_swicth":false,
+                    "max_duration_time":"00:00:00",
+                    "min_time_switch":false,
+                    "min_time":"00:00:00",
+                    "app_fixed_duration_switch":false,
+                    "app_fixed_duration":"00:00:00",
+                    "allow_dm":false
+                }
+
+    *responses:
+
+        **if successful:
+            "message"=>"setting are saved"
+            code(200)
+        **server error unclear problem:
+            "message"=>"internal server error (problem is unclear)"
+            cde(500)
+        **user was not found or broken token:
+            "message"=>"user was not found or a broken token"
+            code(401)
+
