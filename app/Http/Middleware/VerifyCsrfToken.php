@@ -23,6 +23,7 @@ class VerifyCsrfToken extends Middleware
          "/autoLogin",
          "/home",
          "/getSettings",
-         "/saveSettings"
+         "/saveSettings",
+         "/"
     ];
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\Session_controler;
 use App\Http\Controllers\API\SetUserTables;
+use App\http\Controllers\API\getUserId;
 
 class TimeZoneController extends Controller
 {

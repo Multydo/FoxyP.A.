@@ -16,11 +16,11 @@ class SetUserTables extends Controller
     public function UserTableLucher( $usertoken){
         $get_user_id = new getUserId;
         $userId_json = $get_user_id -> getId($usertoken);
-        $userId = $userId_json->getData(true);
+        $userId = $userId_json;
         
-        $result1 = $this -> UserAppointments($userId['id']);
-        $result2 = $this -> UserPeople($userId['id']);
-        $result3 = $this -> UserFollower($userId['id']);
+        $result1 = $this -> UserAppointments($userId);
+        $result2 = $this -> UserPeople($userId);
+        $result3 = $this -> UserFollower($userId);
 
         if ($result1 && $result2 && $result3){
             return true;
@@ -109,9 +109,9 @@ class SetUserTables extends Controller
     }
 
     public function fillSettings($timezone ,$usertoken){
-
-        $userId_json = $this ->getId($usertoken);
-        $userId = $userId_json->getData(true);
+        $get_user_id = new getUserId;
+        $userId_json = $get_user_id ->getId($usertoken);
+        $userId = $userId_json;
 
         $user_id_exists = setting::where('owner_id',$userId)->exists();
         if($user_id_exists){
@@ -127,7 +127,7 @@ class SetUserTables extends Controller
             }
         }else{
             $data = [
-            'owner_id' => $userId['id'],
+            'owner_id' => $userId,
             'work_from' => '09:00:00',
             'work_to' => '17:00:00',
             'break_time' => '00:15:00',
