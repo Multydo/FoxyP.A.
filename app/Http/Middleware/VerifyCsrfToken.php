@@ -24,6 +24,9 @@ class VerifyCsrfToken extends Middleware
          "/home",
          "/getSettings",
          "/saveSettings",
-         "/"
+         "/getPeople",
+         "/followUser",
+         "/unfollowPeople",
+         "/searchPeople"
     ];
 }
