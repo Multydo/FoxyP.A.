@@ -104,7 +104,7 @@
         
         to make lunching the app easier the user can loign with his saved token on his phone this functionality
         will fail if the user last time visiting the app is more than two weeks. the api needs the user token 
-        and no need to pass an thins in the body of the json request an empty array will work and any error 
+        and no need to pass an thins in the body of the json request will need the time zone and any error 
         will cause the user to login manualy (api 5).
 
     *responses:
@@ -135,7 +135,8 @@
         {
     
             "email" : "example@example.com",
-            "password" : "12345678"
+            "password" : "12345678",
+            "timezone":4
     
         }
 
