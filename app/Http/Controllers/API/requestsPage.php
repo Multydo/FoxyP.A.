@@ -11,6 +11,8 @@ use App\Http\Controllers\API\getUserId;
 use Throwable;
 use App\Models\setting;
 use Carbon\Carbon;
+use App\Http\Controllers\API\timeConv;
+
 
 class requestsPage extends Controller
 {
@@ -268,8 +270,10 @@ public function sendRequest(Request $request){
     $user_a_table = $user_id ."_app";
     $break_time_p = setting::where("owner_id", $user_p_id)->value("break_time");
 
-    $total_time = timeToSeconds($ending_t) + timeToSeconds($break_time_p);
-    $final_e_t = secondsToTime($total_time);
+    $timeConv = new timeConv;
+
+    $total_time = $timeConv -> timeToSeconds($ending_t) + $timeConv->timeToSeconds($break_time_p);
+    $final_e_t = $timeConv -> secondsToTime($total_time);
 
     $r_start = $r_date . " " . $starting_t;
     $r_end = $r_date . " " . $ending_t;
@@ -280,6 +284,58 @@ public function sendRequest(Request $request){
     $current_time = Carbon::now()->format('H:i:s');
     $today = Carbon::now()->format('Y-m-d');
 
+    if($r_date == $today && $starting_t_x >= $current_time){
+        if($starting_t < $ending_t ){
+            $time_data = DB::table($user_p_a_table)
+                ->whereBetween("time_from",[$temp_r_date_1 , $temp_r_date_2])
+                ->get(["time_from","time_to"])
+                ->map(function($row){
+                    return["start"=>$row ->time_from, "end"=>$row->time_to];
+                })->toArray();
+                $temp = $this->isConflict($time_data, new DateTime($r_start), new DateTime($r_b_end));
+            if($temp){
+                return redirect()->back()->withErrors(["message"=>"A time conflict was detected in your appointments. Please select a suitable time"]);
+                
+            }else {
+                if($timeConv -> timeToSeconds($starting_t_x)>=$timeConv -> timeToSeconds($user_p_info["info"]["work_from"])&& $timeConv->timeToSeconds($ending_t_x) <= $timeConv -> timeToSeconds($user_p_info["info"]["work_to"])){
+                     DB::table($user_p_a_table)->insert([
+                            'owner_id' => $user_p_id,
+                            'app_id' => 'app_for',
+                            'app_user_id' => $user_id,
+                            'time_from' => $r_start,
+                            'time_to' => $r_end,
+                            'title' => $r_title,
+                            'description' => $r_desc
+                        ]);
+
+                        DB::table($user_p_a_table)->insert([
+                            'owner_id' => $user_p_id,
+                            'app_id' => 'break_time',
+                            'app_user_id' => 'xxxx',
+                            'time_from' => $r_end,
+                            'time_to' => $r_b_end,
+                            'title' => 'break time',
+                            'description' => 'break time'
+                        ]);
+
+                        DB::table($user_a_table)->insert([
+                            'owner_id' => $user_id,
+                            'app_id' => 'app_at',
+                            'app_user_id' => $user_p_id,
+                            'time_from' => $r_start,
+                            'time_to' => $r_end,
+                            'title' => $r_title,
+                            'description' => $r_desc
+                        ]);
+                }else{
+                    return redirect()->back()->withErrors(['message' => 'Sorry, the selected times are not within the user\'s work hours. Please select a suitable time period.']);
+                    
+                }
+            }
+        }
+    }else{
+        return redirect()->back()->withErrors(['message' => 'The requested time is in the past. Please select a suitable time.']);
+    }
 }
 
 }
