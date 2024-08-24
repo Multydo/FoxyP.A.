@@ -104,7 +104,7 @@
         
         to make lunching the app easier the user can loign with his saved token on his phone this functionality
         will fail if the user last time visiting the app is more than two weeks. the api needs the user token 
-        and no need to pass an thins in the body of the json request an empty array will work and any error 
+        and no need to pass an thins in the body of the json request will need the time zone and any error 
         will cause the user to login manualy (api 5).
 
     *responses:
@@ -135,7 +135,8 @@
         {
     
             "email" : "example@example.com",
-            "password" : "12345678"
+            "password" : "12345678",
+            "timezone":4
     
         }
 
@@ -261,3 +262,64 @@
             "message"=>"user was not found or a broken token"
             code(401)
 
+9./getPeople
+
+    *info:
+        this api will give back all the users that the users had followed only the token is needed
+    *responses:
+        **incase of error it will return code(500) and deferent type of messages beacuse no clear problem might happened
+        **if it worked it might be with data if the status is true and false if the user did not follow any one yet :
+
+            {
+                "message": "users fownd",
+                "status": true,
+                "data": [
+                            {
+                                "fname": "daniel2",
+                                "lname": "trab",
+                                "id": 16
+                            }
+                        ]
+            }
+            code(200)
+10./followUser 
+    *info:
+        the api will follow that person the user token is needed and the other person id is needed:
+
+            {
+                "other_user" : "16"
+            }
+    *responses:
+        **any error will happen will give code(500) becase we do not know what are the posible problem that might happen witch souldent
+        **if worked you will get code(200) this meen you can continue and the follow was successful
+11./unfollowPeople
+    *info :
+        the api will unflolow the user . the token and other person id needed 
+            {
+                "other_user" : "16"
+            }
+    *responses:
+        **if any error it will get code(500)
+        **if successful code(200)
+12./searchPeople   
+    *info:
+        it will search for the user if his account is public will return it it need the user token and the name to search
+            {
+                "search" : "daniel"
+            }
+    *responses:
+        **errors will get code(500)
+        **Success will get code(200) and
+
+            [
+                [
+                    {
+                        "fname": "daniel2",
+                        "lname": "trab",
+                        "f_status": "following"
+                    }
+                ]
+            ]
+
+            if f_status is "following" this mean we alredy followed this person
+            if it is "null" this meen we did not follow him

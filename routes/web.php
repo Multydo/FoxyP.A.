@@ -7,6 +7,7 @@ use App\Http\Controllers\API\LoginControler;
 use App\Http\Controllers\API\TimeZoneController;
 use App\Http\Controllers\API\homePage;
 use App\Http\Controllers\API\settingsPage;
+use App\Http\Controllers\API\peoplePage;
 
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
@@ -37,8 +38,10 @@ Route::post('/autoLogin',[LoginControler::class, "tokenLogin"]);
 Route::post('/home',[homePage::class,"master"]);
 Route::post('/getSettings',[settingsPage::class,"getsettings"]);
 Route::post('/saveSettings', [settingsPage::class, 'saveSettings']);
-   
-
+Route::post('/getPeople',[peoplePage::class,'getFollowing']);
+Route::post('/followUser',[peoplePage::class,'followPerson']);
+Route::post('/unfollowPeople',[peoplePage::class,'unfollowPeople']);
+Route::post('/searchPeople',[peoplePage::class,'searchPeople']);
 
 
 //testing links not allowed in production
