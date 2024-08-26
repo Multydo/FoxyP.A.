@@ -49,6 +49,7 @@ Route::post("/sendRequest",[requestsPage::class,"sendRequest"]);
 
 //testing links not allowed in production
 
+Route::post("/showDetails",[homePage::class,"showDetails"]);
 
 
 Route::get('/store',[signin_controler::class , "store"]);

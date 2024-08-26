@@ -30,6 +30,7 @@ class VerifyCsrfToken extends Middleware
          "/searchPeople",
          "/setrequest",
          "/checkDate",
-         "/sendRequest"
+         "/sendRequest",
+         "/showDetails"
     ];
 }
