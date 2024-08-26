@@ -8,6 +8,7 @@ use App\Http\Controllers\API\TimeZoneController;
 use App\Http\Controllers\API\homePage;
 use App\Http\Controllers\API\settingsPage;
 use App\Http\Controllers\API\peoplePage;
+use App\Http\Controllers\API\requestsPage;
 
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
@@ -27,7 +28,7 @@ use App\Http\Controllers\API\SetUserTables;
 */
 
 Route::get('/', function () {
-    return 'welcome';
+    return 'welcome123123';
 });
 
 Route::post('/signin_user',[signin_controler::class , "start_verification"]);
@@ -42,10 +43,13 @@ Route::post('/getPeople',[peoplePage::class,'getFollowing']);
 Route::post('/followUser',[peoplePage::class,'followPerson']);
 Route::post('/unfollowPeople',[peoplePage::class,'unfollowPeople']);
 Route::post('/searchPeople',[peoplePage::class,'searchPeople']);
-
+Route::post('/setrequest' ,[requestsPage::class,"setrequest"]);
+Route::post("/checkDate",[requestsPage::class,"checkDateAvailability"]);
+Route::post("/sendRequest",[requestsPage::class,"sendRequest"]);
 
 //testing links not allowed in production
 
+Route::post("/showDetails",[homePage::class,"showDetails"]);
 
 
 Route::get('/store',[signin_controler::class , "store"]);
