@@ -1,5 +1,5 @@
 <?php
-
+/*
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\signin_controler;
 use App\Http\Controllers\API\signin_verification_code;
@@ -13,7 +13,7 @@ use App\Http\Controllers\API\requestsPage;
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
 use App\Http\Controllers\API\SetUserTables;
-
+*/
 
 
 /*
@@ -26,7 +26,7 @@ use App\Http\Controllers\API\SetUserTables;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+/*
 Route::get('/', function () {
     return 'welcome123123';
 });
@@ -55,3 +55,5 @@ Route::post("/showDetails",[homePage::class,"showDetails"]);
 Route::get('/store',[signin_controler::class , "store"]);
 Route::post('/getUserInfo',[testGetInfo::class , "getUserInfo"]);
 Route::post('/testing',[SetUserTables::class , "UserTableLucher"]);
+
+*/
