@@ -4,15 +4,14 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\http\Controllers\API\getUserId;
+use App\http\Controllers\API\UserController;
 use App\Models\setting;
 use App\Http\Requests\settingsRequest;
 
-
-class settingsPage extends Controller
+class SettingsController extends Controller
 {
     public function getsettings(Request $request){
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId = $get_user_id -> getId($request);
         if($userId){
             $data = setting::where('owner_id',$userId)->first();
@@ -37,7 +36,7 @@ class settingsPage extends Controller
 
     public function saveSettings(Request $request){
         $token = $request->bearerToken();
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId = $get_user_id -> getId($token);
         if($userId){
             $data = $request->json()->all();

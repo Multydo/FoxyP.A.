@@ -4,25 +4,23 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\Session_controler;
-use App\HTTP\Controllers\API\GMTConverter;
+use App\Http\Controllers\API\SessionController;
+use App\HTTP\Controllers\API\TimeController;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\API\getUserId;
+use App\Http\Controllers\API\UserController;
 use Throwable;
 use App\Models\setting;
 use Carbon\Carbon;
-use App\Http\Controllers\API\timeConv;
 
-
-class requestsPage extends Controller
+class RequestController extends Controller
 {
-    public function setRequest(Request $request){
+     public function setRequest(Request $request){
         $user_p_info = [];
         $token = $request -> bearerToken();
-        $getUserId = new getUserId;
-        $sessionCon = new Session_controler;
-        $gmtcon =new GMTConverter;
-        $user_id = $getUserId -> getId($token);
+        $UserController = new UserController;
+        $sessionCon = new SessionController;
+        $gmtcon =new TimeController;
+        $user_id = $UserController -> getId($token);
         if($request->has("other_user")){
             $user_f_id = $request["other_user"];
             try{
@@ -110,8 +108,8 @@ class requestsPage extends Controller
         "key" => "user_p_info",
         "data" => ""
     ];
-    $gmtCon = new GMTConverter;
-    $SessionCon = new Session_controler;
+    $gmtCon = new TimeController;
+    $SessionCon = new SessionController;
     $user_p_info = $SessionCon->session_selector("get", $data);
     $info = [$user_p_info['info']];
     $full_days = $user_p_info['full_days']; // Corrected 'full_day' to 'full_days'
@@ -211,7 +209,7 @@ class requestsPage extends Controller
         "key" =>"user_p_info",
         "data"=>""
     ];
-    $sessionCon = new Session_controler;
+    $sessionCon = new SessionController;
     $user_p_info = $sessionCon -> session_selector("get",$data);
     $day_num = Carbon::parse($r_date)->dayOfWeek;
     $days_list = [
@@ -240,8 +238,8 @@ public function sendRequest(Request $request){
         "key" => "user_p_info",
         "data" => ""
     ];
-    $sessionCon = new Session_controler;
-    $gmtCon = new GMTConverter;
+    $sessionCon = new SessionController;
+    $gmtCon = new TimeController;
     $user_p_info = $sessionCon->session_selector("get", $data);
     $r_date = $request->input("r_date");
     $starting_t_x = $request->input('starting_t');
@@ -260,7 +258,7 @@ public function sendRequest(Request $request){
     $ending_t = $gmtCon->convertToGMT($ending_t_x, $timezone);
 
     $token = $request->bearerToken();
-    $getId = new getUserId;
+    $getId = new UserController;
     $user_id = $getId->getId($token);
 
     $user_p_id = $user_p_info["user_id"];
@@ -269,7 +267,7 @@ public function sendRequest(Request $request){
     $user_a_table = $user_id . "_app";
     $break_time_p = setting::where("owner_id", $user_p_id)->value("break_time");
 
-    $timeConv = new timeConv;
+    $timeConv = new TimeController;
 
     $total_time = $timeConv->timeToSeconds($ending_t) + $timeConv->timeToSeconds($break_time_p);
     $final_e_t = $timeConv->secondsToTime($total_time);
@@ -440,7 +438,7 @@ public function isConflict($timeData,$startingT,$endingT){
 }
 
 private function checkWorkDay($r_date, $p_full_day) {
-    $sessionCon = new Session_controler;
+    $sessionCon = new SessionController;
     $data = [
         "key" => "user_p_info",
         "data" => ""
@@ -468,6 +466,5 @@ private function checkWorkDay($r_date, $p_full_day) {
         }
     }
 }
-
 
 }

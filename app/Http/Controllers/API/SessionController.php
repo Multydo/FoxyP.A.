@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class Session_controler extends Controller
+class SessionController extends Controller
 {
-    public function session_selector($protocole , $session_req_data){
+   public function session_selector($protocole , $session_req_data){
         
         switch($protocole){
             case "put" :
@@ -24,7 +24,7 @@ class Session_controler extends Controller
 
     }
 
-    public function session_put($session_req_data){
+    private function session_put($session_req_data){
         $key = $session_req_data['key'];
         $data =$session_req_data['data'];
         Session::put($key, $data);
@@ -32,7 +32,7 @@ class Session_controler extends Controller
        
     }
 
-    public function session_get($session_req_data){
+    private function session_get($session_req_data){
         $key = $session_req_data['key'];
         $data = Session::get($key);
         return $data;
@@ -44,5 +44,4 @@ class Session_controler extends Controller
         Session::flush();
         return true ;
     }
-
 }

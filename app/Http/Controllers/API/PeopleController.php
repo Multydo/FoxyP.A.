@@ -4,14 +4,14 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\getUserId;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-class peoplePage extends Controller
+class PeopleController extends Controller
 {
     public function getFollowing(Request $request){
-        $getId = new getUserId;
+        $getId = new UserController;
         $userId= $getId-> getId($request);
 
         if($userId){
@@ -56,7 +56,7 @@ class peoplePage extends Controller
     }
     public function followPerson(Request $request){
         $token = $request -> bearerToken();
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId = $get_user_id -> getId($token);
         $requestData = $request->json()->all();
         $userFId = $requestData["other_user"];
@@ -116,7 +116,7 @@ class peoplePage extends Controller
 
     public function unfollowPeople(Request $request){
         $token = $request -> bearerToken();
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId = $get_user_id -> getId($token);
         $requestData = $request->json()->all();
         $userFId = $requestData["other_user"];
@@ -173,7 +173,7 @@ class peoplePage extends Controller
 
     public function searchPeople(Request $request){
         $token = $request -> bearerToken();
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId = $get_user_id -> getId($token);
         $requestData = $request->json()->all();
         
@@ -183,7 +183,7 @@ class peoplePage extends Controller
             $search_data = DB::table('users as u')
                 //->join('followers_users as f', 'u.id', '=', 'f.userId')
                 ->leftJoin($userTable . ' as p', 'p.user_f_id', '=', 'u.id')
-                ->select( 'u.fname', 'u.lname', 'p.f_status')
+                ->select( 'u.fname', 'u.lname', 'p.f_status','u.id')
                 ->where(function($query) use ($gues) {
             $query->where('u.fname', 'like', $gues . '%')
                 ->orWhere('u.lname', 'like', $gues . '%')

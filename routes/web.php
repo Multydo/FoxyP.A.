@@ -1,19 +1,19 @@
 <?php
-/*
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\signin_controler;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\signin_verification_code;
-use App\Http\Controllers\API\LoginControler;
-use App\Http\Controllers\API\TimeZoneController;
-use App\Http\Controllers\API\homePage;
-use App\Http\Controllers\API\settingsPage;
-use App\Http\Controllers\API\peoplePage;
-use App\Http\Controllers\API\requestsPage;
+
+use App\Http\Controllers\API\TimeController;
+use App\Http\Controllers\API\HomeController;
+use App\Http\Controllers\API\SettingsController;
+use App\Http\Controllers\API\PeopleController;
+use App\Http\Controllers\API\RequestController;
 
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
-use App\Http\Controllers\API\SetUserTables;
-*/
+use App\Http\Controllers\API\DynamicTableController;
+
 
 
 /*
@@ -26,34 +26,31 @@ use App\Http\Controllers\API\SetUserTables;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-/*
 Route::get('/', function () {
     return 'welcome123123';
 });
 
-Route::post('/signin_user',[signin_controler::class , "start_verification"]);
-Route::post('/login_user',[LoginControler::class , "login"] );
-Route::post('/save_settings', [TimeZoneController::class, 'getTimeZone']);
-Route::post('/verifying',[signin_controler::class , "check_code"]);
-Route::post('/autoLogin',[LoginControler::class, "tokenLogin"]);
-Route::post('/home',[homePage::class,"master"]);
-Route::post('/getSettings',[settingsPage::class,"getsettings"]);
-Route::post('/saveSettings', [settingsPage::class, 'saveSettings']);
-Route::post('/getPeople',[peoplePage::class,'getFollowing']);
-Route::post('/followUser',[peoplePage::class,'followPerson']);
-Route::post('/unfollowPeople',[peoplePage::class,'unfollowPeople']);
-Route::post('/searchPeople',[peoplePage::class,'searchPeople']);
-Route::post('/setrequest' ,[requestsPage::class,"setrequest"]);
-Route::post("/checkDate",[requestsPage::class,"checkDateAvailability"]);
-Route::post("/sendRequest",[requestsPage::class,"sendRequest"]);
+Route::post('/signin_user',[UserController::class , "start_verification"]);
+Route::post('/login_user',[UserController::class , "login"] );
+Route::post('/save_settings', [TimeController::class, 'getTimeZone']);
+Route::post('/verifying',[UserController::class , "check_code"]);
+//Route::post('/autoLogin',[UserController::class, "tokenLogin"]);
+Route::post('/home',[HomeController::class,"master"]);
+Route::post('/getSettings',[SettingsController::class,"getsettings"]);
+Route::post('/saveSettings', [SettingsController::class, 'saveSettings']);
+Route::post('/getPeople',[PeopleController::class,'getFollowing']);
+Route::post('/followUser',[PeopleController::class,'followPerson']);
+Route::post('/unfollowPeople',[PeopleController::class,'unfollowPeople']);
+Route::post('/searchPeople',[PeopleController::class,'searchPeople']);
+Route::post('/setrequest' ,[RequestController::class,"setrequest"]);
+Route::post("/checkDate",[RequestController::class,"checkDateAvailability"]);
+Route::post("/sendRequest",[RequestController::class,"sendRequest"]);
 
 //testing links not allowed in production
 
-Route::post("/showDetails",[homePage::class,"showDetails"]);
+Route::post("/showDetails",[HomeController::class,"showDetails"]);
 
 
-Route::get('/store',[signin_controler::class , "store"]);
+Route::get('/store',[UserController::class , "store"]);
 Route::post('/getUserInfo',[testGetInfo::class , "getUserInfo"]);
-Route::post('/testing',[SetUserTables::class , "UserTableLucher"]);
-
-*/
+Route::post('/testing',[DynamicTableController::class , "UserTableLucher"]);
