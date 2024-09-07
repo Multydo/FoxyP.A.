@@ -99,11 +99,12 @@ class UserController extends Controller
         
         
     }
-    public function start_verification(SigninRequest $user_data_json){
+    public function start_verification(SigninRequest $request){
         
 
 
-        $user_data = $user_data_json->json()->all();
+        $user_data = $request->all();
+        
         $user_email = $user_data['email'];
         $user_name = $user_data['username'];
 
@@ -115,7 +116,7 @@ class UserController extends Controller
             ],409);
         }
 
-        $user_name_eixists = User::where('email',$user_name)->exists();
+        $user_name_eixists = User::where('username',$user_name)->exists();
         if($user_name_eixists){
             return response()-> json([
                 "message" => "user name alredy exists",

@@ -1,5 +1,5 @@
 <?php
-
+/*
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\signin_verification_code;
@@ -13,7 +13,7 @@ use App\Http\Controllers\API\RequestController;
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
 use App\Http\Controllers\API\DynamicTableController;
-
+*/
 
 
 /*
@@ -25,7 +25,7 @@ use App\Http\Controllers\API\DynamicTableController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "web" middleware group. Make something great!
 |
-*/
+*//*
 Route::get('/', function () {
     return 'welcome123123';
 });
@@ -53,4 +53,4 @@ Route::post("/showDetails",[HomeController::class,"showDetails"]);
 
 Route::get('/store',[UserController::class , "store"]);
 Route::post('/getUserInfo',[testGetInfo::class , "getUserInfo"]);
-Route::post('/testing',[DynamicTableController::class , "UserTableLucher"]);
+Route::post('/testing',[DynamicTableController::class , "UserTableLucher"]);*/
