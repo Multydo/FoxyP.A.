@@ -13,16 +13,19 @@ use App\Http\Controllers\API\UserController;
 
 class DynamicTableController extends Controller
 {
-   public function UserTableLucher( $usertoken){
+   public function UserTableLucher( $request){
+        $usertoken = $request ->bearerToken();
         $get_user_id = new UserController;
         $userId_json = $get_user_id -> getId($usertoken);
         $userId = $userId_json;
+        $timezone = $request["timezone"];
         
         $result1 = $this -> UserAppointments($userId);
         $result2 = $this -> UserPeople($userId);
         $result3 = $this -> UserFollower($userId);
+        $result4 = $this -> fillSettings($timezone ,$usertoken);
 
-        if ($result1 && $result2 && $result3){
+        if ($result1 && $result2 && $result3 && $result4){
             return true;
         }else{
             return false;

@@ -9,6 +9,7 @@ use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\PeopleController;
 use App\Http\Controllers\API\RequestController;
+use App\Http\Controllers\API\tempsingin;
 
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
@@ -29,6 +30,13 @@ use App\Http\Controllers\API\DynamicTableController;
 Route::get('/', function () {
     return 'welcome123123';
 });
+
+
+
+Route::post("/testreg",[tempsingin::class,"register"]);
+Route::post("/verify",[tempsingin::class,"verify"]);
+
+
 
 Route::post('/signin_user',[UserController::class , "start_verification"]);
 Route::post('/login_user',[UserController::class , "login"] );
