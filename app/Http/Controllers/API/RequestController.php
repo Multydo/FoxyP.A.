@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\SessionController;
+
 use App\HTTP\Controllers\API\TimeController;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\API\UserController;
@@ -18,11 +18,12 @@ class RequestController extends Controller
         $user_p_info = [];
         $token = $request -> bearerToken();
         $UserController = new UserController;
-        $sessionCon = new SessionController;
+        
         $gmtcon =new TimeController;
         $user_id = $UserController -> getId($token);
-        if($request->has("other_user")){
-            $user_f_id = $request["other_user"];
+        $user_f_id = $request["other_user"];
+        /*if($request->has("other_user")){
+            
             try{
                 $data=[
                     "key"=>"user_p_id",
@@ -40,7 +41,7 @@ class RequestController extends Controller
                 "data"=>""
             ];
             $user_f_id = $sessionCon->session_selector("get",$data);
-        }
+        }*/
 
         $user_p_info["user_id"] = $user_f_id;
 
@@ -67,14 +68,16 @@ class RequestController extends Controller
      ->select('work_from', 'work_to', 'time_zone')
      ->first();
      //dd($info);
-        $data = [
+        /*$data = [
             "key"=>"time_zone",
             "data"=>""
         ];
 
-        $timeZone_data = $sessionCon->session_selector("get",$data);
+        $timeZone_data = $sessionCon->session_selector("get",$data);*/
+
+
         //dd($timeZone_data);
-        $timezone = $timeZone_data;
+        $timezone = setting::where("owner_id",$user_id)->select("time_zone")->first();
 
         $info->work_from = $gmtcon->convertFromGMT($info->work_from , $timezone);
         $info->work_to = $gmtcon->convertFromGMT($info->work_to , $timezone);
@@ -88,36 +91,46 @@ class RequestController extends Controller
 
         $user_p_info["info_day"]= $info_day;
 
-        $data=[
-            "key"=>"user_p_info",
-            "data"=>$user_p_info
-        ];
-
-        $save_user_p = $sessionCon->session_selector("put",$data);
+       
 
         return response()->json([
+            "userId"=>$user_f_id,
             "info"=>$info,
             "full_days"=>$full_days,
             "info_day"=>$info_day
         ]);
     }
 
-    public function checkDateAvailability(Request $request){
+   /* public function checkDateAvailability(Request $request){
     //$this->setRequest($request);
+
+    $token = $request->bearerToken();
     $data = [
         "key" => "user_p_info",
         "data" => ""
     ];
     $gmtCon = new TimeController;
     $SessionCon = new SessionController;
-    $user_p_info = $SessionCon->session_selector("get", $data);
-    $info = [$user_p_info['info']];
-    $full_days = $user_p_info['full_days']; // Corrected 'full_day' to 'full_days'
-    $info_day = [$user_p_info['info_day']];
+    $userCon = new UserController;
+    $main_user_id = $userCon->getId($token);
 
-    $user_p_id = $user_p_info['user_id'];
+
+
+    
+
+    $user_p_id= $request->userId;
     $r_date = $request->r_date;
-    $p_full_day = $user_p_info['full_days']; // Corrected 'full_day' to 'full_days'
+    $max_app_f = setting::where("owner_id",$user_p_id)->value("max_app");
+    $user_f_a_table = $user_p_id . "_app";
+    $p_full_day = DB::table($user_f_a_table)
+        ->select(DB::raw('DATE(time_from) AS date_part, COUNT(*) AS count'))
+        ->where('app_user_id', '<>', 'xxxx')
+        ->groupBy('date_part')
+        ->having('count', '>=', $max_app_f)
+        ->pluck('date_part')
+        ->toArray();
+
+
     $today = Carbon::now()->format('Y-m-d');
 
     if ($r_date >= $today) {
@@ -138,15 +151,17 @@ class RequestController extends Controller
                     "key" => "timezone",
                     "data" => ""
                 ];
-                $timezone = $SessionCon->session_selector("get", $data);
+                $timezone = setting::where("owner_id",$main_user_id)->select("time_zone")->first();
 
                 foreach ($appointments as $index => $row) {
-                    $time_data[$index]['start'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_from)->format('H:i:s'), $timezone);
-                    $time_data[$index]['end'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_to)->format('H:i:s'), $timezone);
+                    $time_data[$index]['start'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_from)->format('H:i:s'), $timezone["time_zone"]);
+                    $time_data[$index]['end'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_to)->format('H:i:s'), $timezone["time_zone"]);
                 }
-               
+                $info = setting::where('owner_id', $user_p_id)
+                    ->select('work_from', 'work_to', 'time_zone')
+                    ->first();
                 $work_data = [
-                    ['start' => $user_p_info['info']->work_from, 'end' => $user_p_info['info']->work_to]
+                    ['start' => $info->work_from, 'end' => $info->work_to]
                 ];
 
                 return response()->json([
@@ -176,9 +191,11 @@ class RequestController extends Controller
                         $time_data[$index]['start'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_from)->format('H:i:s'), $timezone);
                         $time_data[$index]['end'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_to)->format('H:i:s'), $timezone);
                     }
-
+                    $info = setting::where('owner_id', $user_p_id)
+                    ->select('work_from', 'work_to', 'time_zone')
+                    ->first();
                     $work_data = [
-                        ['start' => $user_p_info['info']['work_from'], 'end' => $user_p_info['info']['work_to']]
+                        ['start' => $info->work_from, 'end' => $info->work_to]
                     ];
 
                     return response()->json([
@@ -203,8 +220,91 @@ class RequestController extends Controller
         ], 400);
     }
 }
+*/
 
-    private function check_work_d($r_date,$p_full_day){
+public function checkDateAvailability(Request $request) {
+    $token = $request->bearerToken();
+    $userCon = new UserController;
+    $main_user_id = $userCon->getId($token);
+    
+    $gmtCon = new TimeController;
+    
+    $user_p_id = $request->userId;
+    $r_date = $request->r_date;
+    $max_app_f = setting::where("owner_id", $user_p_id)->value("max_app");
+    $user_f_a_table = $user_p_id . "_app";
+    $p_full_day = DB::table($user_f_a_table)
+        ->select(DB::raw('DATE(time_from) AS date_part, COUNT(*) AS count'))
+        ->where('app_user_id', '<>', 'xxxx')
+        ->groupBy('date_part')
+        ->having('count', '>=', $max_app_f)
+        ->pluck('date_part')
+        ->toArray();
+
+    $today = Carbon::now()->format('Y-m-d');
+
+    if ($r_date >= $today) {
+        if (!in_array($r_date, $p_full_day)) {
+            if ($this->checkWorkDay($r_date, $p_full_day,$user_p_id)) {
+                $user_p_a_table = $user_p_id . "_app";
+                $temp_r_date_1 = $r_date . " 00:00:00";
+                $temp_r_date_2 = $r_date . " 23:59:59";
+
+                $appointments = DB::table($user_p_a_table)
+                    ->where('time_from', '>=', $temp_r_date_1)
+                    ->where('time_to', '<=', $temp_r_date_2)
+                    ->get(['time_from', 'time_to']);
+
+                $time_data = [];
+                
+                $timezone = setting::where("owner_id",$main_user_id)->value("time_zone");
+
+                foreach ($appointments as $index => $row) {
+                    $time_data[$index]['start'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_from)->format('H:i:s'), $timezone);
+                    $time_data[$index]['end'] = $gmtCon->convertFromGMT(Carbon::parse($row->time_to)->format('H:i:s'), $timezone);
+                }
+                $info = setting::where('owner_id', $user_p_id)
+                    ->select('work_from', 'work_to', 'time_zone')
+                    ->first();
+                    $timeCon = new TimeController;
+                    $work_from = $timeCon ->convertFromGMT($info->work_from, $timezone);
+                    $work_to = $timeCon ->convertFromGMT($info->work_to, $timezone);
+
+
+
+                $work_data = [
+                    ['start' => $work_from, 'end' => $work_to]
+                ];
+
+                return response()->json([
+                    "userId"=>$user_p_id,
+                    'r_date' => $r_date,
+                    'time_data' => $time_data,
+                    'work_data' => $work_data
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'The requested date (' . $r_date . ') for that person is full/closed. Please select a date that might not be full/closed.'
+                ], 409);
+            }
+        } else {
+            return response()->json([
+                'message' => 'The requested date (' . $r_date . ') for that person is full/closed. Please select a date that might not be full/closed.'
+            ], 409);
+        }
+
+    } else {
+        return response()->json([
+            'message' => 'The requested date (' . $r_date . ') is in the past. Please select a suitable date.'
+        ], 400);
+    }
+}
+
+
+
+    
+
+   /* private function check_work_d($r_date,$p_full_day){
     $data= [
         "key" =>"user_p_info",
         "data"=>""
@@ -231,9 +331,12 @@ class RequestController extends Controller
             return $days_list[$day_num] === 'accepted';
         }
     }
-}
+}*/
 
-public function sendRequest(Request $request){
+/*public function sendRequest(Request $request){
+    $token = $request->bearerToken();
+    $userCon = new UserController;
+    $main_user_id = $userCon->getId($token);
     $data = [
         "key" => "user_p_info",
         "data" => ""
@@ -241,18 +344,19 @@ public function sendRequest(Request $request){
     $sessionCon = new SessionController;
     $gmtCon = new TimeController;
     $user_p_info = $sessionCon->session_selector("get", $data);
-    $r_date = $request->input("r_date");
-    $starting_t_x = $request->input('starting_t');
-    $ending_t_x = $request->input('ending_t');
-    $r_title = $request->input('r_title');
-    $r_desc = $request->input('r_desc');
+    $user_p_id = $request->userId;
+    $r_date = $request->r_date;
+    $starting_t_x = $request->starting_t;
+    $ending_t_x = $request->ending_t;
+    $r_title = $request->r_title;
+    $r_desc = $request->r_desc;
 
     $data = [
         "key" => "timezone",
         "data" => ""
     ];
 
-    $timezone = $sessionCon->session_selector("get", $data);
+    $timezone = setting::where("owner_id",$main_user_id)->value("time_zone");
 
     $starting_t = $gmtCon->convertToGMT($starting_t_x, $timezone);
     $ending_t = $gmtCon->convertToGMT($ending_t_x, $timezone);
@@ -261,7 +365,7 @@ public function sendRequest(Request $request){
     $getId = new UserController;
     $user_id = $getId->getId($token);
 
-    $user_p_id = $user_p_info["user_id"];
+    
 
     $user_p_a_table = $user_p_id . "_app";
     $user_a_table = $user_id . "_app";
@@ -407,7 +511,153 @@ public function sendRequest(Request $request){
     return response()->json([
         "message"=>"all good to go"
     ],200);
+}*/
+
+public function sendRequest(Request $request) {
+    // Get token and user ID once
+
+    
+    $token = $request->bearerToken();
+    $userCon = new UserController;
+    $main_user_id = $userCon->getId($token);
+
+    // Setup controllers and variables
+
+    $gmtCon = new TimeController;
+
+    $user_p_id = $request->userId;
+    $info = setting::where('owner_id', $user_p_id)
+                    ->select('work_from', 'work_to', 'time_zone')
+                    ->first();
+    $r_date = $request->r_date;
+    $starting_t_x = $request->starting_t;
+    $ending_t_x = $request->ending_t;
+    $r_title = $request->r_title;
+    $r_desc = $request->r_desc;
+
+    // Timezone conversion
+    $timezone = setting::where("owner_id", $main_user_id)->value("time_zone");
+    $starting_t = $gmtCon->convertToGMT($starting_t_x, $timezone);
+    $ending_t = $gmtCon->convertToGMT($ending_t_x, $timezone);
+
+    // Variables for date and time calculations
+    $user_p_a_table = $user_p_id . "_app";
+    $user_a_table = $main_user_id . "_app";
+    $break_time_p = setting::where("owner_id", $user_p_id)->value("break_time");
+
+    $timeConv = new TimeController;
+    $total_time = $timeConv->timeToSeconds($ending_t) + $timeConv->timeToSeconds($break_time_p);
+    $final_e_t = $timeConv->secondsToTime($total_time);
+
+    $r_start = $r_date . " " . $starting_t;
+    $r_end = $r_date . " " . $ending_t;
+    $r_b_end = $r_date . " " . $final_e_t;
+
+    $temp_r_date_1 = $r_date . " 00:00:00";
+    $temp_r_date_2 = $r_date . " 23:59:59"; 
+    $current_time = Carbon::now()->format('H:i:s');
+    $today = Carbon::now()->format('Y-m-d');
+//dd("hi");
+    // Check time conflicts
+    $time_data = $this->getTimeData($user_p_a_table, $temp_r_date_1, $temp_r_date_2);
+    $temp = $this->isConflict($time_data, new Carbon($r_start), new Carbon($r_b_end));
+
+    if ($r_date == $today && $starting_t_x >= $current_time) {
+        if ($starting_t < $ending_t) {
+            $state =  $this->handleInsertions($temp,  $info, $user_p_a_table, $user_a_table, $user_p_id, $main_user_id, $r_start, $r_end, $r_b_end, $r_title, $r_desc, $starting_t_x, $ending_t_x);
+            //dd($state);
+            if ($state){
+                return response()->json(["message" => "all good to go"], 200);
+            
+            }else{
+                return response()->json([
+                    "message"=>"time inputed wrong or appointment time conflicts with other appointments"
+                ],409);
+            }
+        }
+    } else if ($r_date > $today) {
+        if ($starting_t < $ending_t) {
+            $time_data_2 = $this->getTimeData($user_a_table, $temp_r_date_1, $temp_r_date_2);
+            $temp_2 = $this->isConflict($time_data_2, new Carbon($r_start), new Carbon($r_end));
+             $state = $this->handleInsertions($temp_2,  $info, $user_p_a_table, $user_a_table, $user_p_id, $main_user_id, $r_start, $r_end, $r_b_end, $r_title, $r_desc, $starting_t, $ending_t);
+            //dd($state);
+             if ($state){
+                return response()->json(["message" => "all good to go"], 200);
+            }else{
+                return response()->json([
+                    "message"=>"time inputed wrong or appointment time conflicts with other appointments"
+                ],409);
+            }
+        }
+    } else {
+        return response()->json(['message' => 'The requested time is in the past. Please select a suitable time.']);
+    }
+
+    
 }
+
+// Helper function to get time data
+private function getTimeData($table, $start, $end) {
+    return DB::table($table)
+        ->whereBetween("time_from", [$start, $end])
+        ->get(["time_from", "time_to"])
+        ->map(function($row) {
+            return ["start" => $row->time_from, "end" => $row->time_to];
+        })->toArray();
+}
+
+// Handle the insertions to the DB
+private function handleInsertions($conflict, $info, $user_p_a_table, $user_a_table, $user_p_id, $user_id, $r_start, $r_end, $r_b_end, $r_title, $r_desc, $starting_t_x, $ending_t_x) {
+     $timeConv = new TimeController;
+     $timezone = setting::where("owner_id",$user_id)->value("time_zone");
+ $timeCon = new TimeController;
+                    $work_from = $timeCon ->convertFromGMT($info->work_from, $timezone);
+                    $work_to = $timeCon ->convertFromGMT($info->work_to, $timezone);
+   //dd($conflict, $info, $user_p_a_table, $user_a_table, $user_p_id, $user_id, $r_start, $r_end, $r_b_end, $r_title, $r_desc, $starting_t_x, $ending_t_x);
+    if ($conflict) {
+        return false;
+    } else {
+        if ($timeConv->timeToSeconds($starting_t_x) >= $timeConv->timeToSeconds($work_from) &&
+            $timeConv->timeToSeconds($ending_t_x) <= $timeConv->timeToSeconds($work_to)) {
+
+            // Insert appointment and break time
+            DB::table($user_p_a_table)->insert([
+                'owner_id' => $user_p_id,
+                'app_id' => 'app_for',
+                'app_user_id' => $user_id,
+                'time_from' => $r_start,
+                'time_to' => $r_end,
+                'title' => $r_title,
+                'description' => $r_desc
+            ]);
+
+            DB::table($user_p_a_table)->insert([
+                'owner_id' => $user_p_id,
+                'app_id' => 'break_time',
+                'app_user_id' => 'xxxx',
+                'time_from' => $r_end,
+                'time_to' => $r_b_end,
+                'title' => 'break time',
+                'description' => 'break time'
+            ]);
+
+            DB::table($user_a_table)->insert([
+                'owner_id' => $user_id,
+                'app_id' => 'app_at',
+                'app_user_id' => $user_p_id,
+                'time_from' => $r_start,
+                'time_to' => $r_end,
+                'title' => $r_title,
+                'description' => $r_desc
+            ]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+
 
 
 public function isConflict($timeData,$startingT,$endingT){
@@ -437,23 +687,26 @@ public function isConflict($timeData,$startingT,$endingT){
     return false; // No conflicts found
 }
 
-private function checkWorkDay($r_date, $p_full_day) {
-    $sessionCon = new SessionController;
-    $data = [
-        "key" => "user_p_info",
-        "data" => ""
-    ];
+private function checkWorkDay($r_date, $p_full_day,$user_id) {
+    
 
-    $user_p_info = $sessionCon->session_selector("get", $data);
+    
+
+    $info_day = setting::where("owner_id", $user_id)
+        ->select("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
+        ->first()
+        ->toArray();
+    //dd($info_day);
+
     $day_num = Carbon::parse($r_date)->dayOfWeek;
     $days_list = [
-        $user_p_info['info_day']['sunday'],
-        $user_p_info['info_day']['monday'],
-        $user_p_info['info_day']['tuesday'],
-        $user_p_info['info_day']['wednesday'],
-        $user_p_info['info_day']['thursday'],
-        $user_p_info['info_day']['friday'],
-        $user_p_info['info_day']['saturday'],
+        $info_day["sunday"],
+        $info_day["monday"],
+        $info_day["tuesday"],
+        $info_day["wednesday"],
+        $info_day["thursday"],
+        $info_day["friday"],
+        $info_day["saturday"],
     ];
 
     if (empty($p_full_day)) {

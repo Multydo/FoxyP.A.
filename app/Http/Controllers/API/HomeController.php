@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Http\Controllers\API\tempsingin;
 
-use App\Http\Controllers\API\SessionController;
 use Laravel\Sanctum\PersonalAccessToken;
 use App\Models\personal_access_token;
+use App\Models\setting;
 
 class HomeController extends Controller
 {
@@ -123,7 +123,7 @@ class HomeController extends Controller
 
     public function showDetails(Request $request)
 {
-    $sessionCon = new SessionController;
+    
     $gmtCon = new TimeController;
     $get_user_id = new UserController;
     $token = $request->bearerToken();
@@ -147,12 +147,13 @@ class HomeController extends Controller
 
         if ($appointments->count() > 0) {
             $time_data = [];
+            $timeZone = setting::where("owner_id",$user_id)->select("time_zone")->first();
             foreach ($appointments as $index => $row) {
                 $date_from = new Carbon($row->time_from);
-                $temp_d_f = $gmtCon->convertFromGMT($date_from->format('H:i:s'), $sessionCon->session_selector("get", ["key" => "timezone", "data" => ""]));
+                $temp_d_f = $gmtCon->convertFromGMT($date_from->format('H:i:s'), $timeZone["time_zone"]);
 
                 $date_to = new Carbon($row->time_to);
-                $temp_d_t = $gmtCon->convertFromGMT($date_to->format('H:i:s'), $sessionCon->session_selector("get", ["key" => "timezone", "data" => ""]));
+                $temp_d_t = $gmtCon->convertFromGMT($date_to->format('H:i:s'), $timeZone["time_zone"]);
 
                 $time_data[$index]['start'] = $temp_d_f;
                 $time_data[$index]['end'] = $temp_d_t;
@@ -179,20 +180,20 @@ class HomeController extends Controller
                 }
             }
 
-            $data = [
-                "key" => "time_a_data",
-                "data" => $time_data
-            ];
-            $sessionCon->session_selector("put", $data);
+            
 
             return response()->json([
                 "time_data" => $time_data
-            ]);
+            ],200);
         } else {
-            return redirect('main');
+            return response()->json([
+                "message"=>"Bad Request"
+            ],400);
         }
     } else {
-        return redirect('main');
+        return response()->json([
+            "message"=>"the requested date is in the past , are you a time travler ?"
+        ],418);
     }
 }
 }
