@@ -9,6 +9,7 @@ use App\Models\Otp;
 use App\Mail\signin_verification_email_code;
 use Mail;
 use App\Http\Controllers\API\DynamicTableController;
+use Throwable;
 
 class tempsingin extends Controller
 {
@@ -111,7 +112,7 @@ class tempsingin extends Controller
 
     public function sendEmail( $user_data){
         //dd("hi");
-       
+       try{
         $very_code = rand(1000,9999);
        $vcode = new Otp();
        $vcode->email = $user_data["email"];
@@ -146,6 +147,10 @@ Best regards",
         ];
       
         Mail::to("$user_email")->send(new signin_verification_email_code($details) );
+       }catch(Throwable $e){
+        return false;
+       }
+        
         return true ;
     }
 

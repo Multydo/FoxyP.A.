@@ -20,8 +20,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Carbon;
 use App\Models\personal_access_token;
 use App\Models\setting;
-
-
+use Throwable;
 
 class UserController extends Controller
 {
@@ -257,7 +256,7 @@ Best regards",
     public function login(LoginRequest $user_data){
         $credentials = $user_data->only('email', 'password');
         if(Auth::attempt($credentials)){
-           
+            
             $user_email = $user_data['email'];
             $user_info = User::where('email' , $user_email)->first();
             $user_username = $user_info ->username;
@@ -302,27 +301,14 @@ Best regards",
         $userToken = $token;
         $UserController = new UserController;
         $userId = $UserController->getId($userToken);
-        $timezoneOffset = $timezone;
-        $data = [
-            "key" => "time_zone",
-            "data" => "$timezoneOffset"
-        ];
-        $session_req = new SessionController;
-        $session_result = $session_req -> session_selector("put" , $data);
-
-        if ($session_result){
-            
-            $status = Setting::where('owner_id', $userId)->update(['time_zone' => $timezoneOffset]);
-            if($status){
-                return true;
-            }else{
-                
-                 return false;
-            }
-
-        }else{
-            return false;
         
+       
+        try{
+            $status = Setting::where('owner_id', $userId)->update(['time_zone' => $timezone]);
+            return true;
+        }catch(Throwable $e){
+            return false;
         }
+       
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\UserController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Http\Controllers\API\tempsingin;
 
 use App\Http\Controllers\API\SessionController;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -44,27 +46,45 @@ class HomeController extends Controller
 
                         $get_user_id = new UserController;
                         $userId = $get_user_id -> getId($request);
+                        $user_info = User::where("id",$userId)->first();
+                        if($user_info["verified"]){
+                            $user_table = $userId."_app";
+                            $todaydate =Carbon::now()->format('Y-m-d');
+                            $dates =DB::table($user_table)
+                                ->selectRaw('DISTINCT DATE(time_from) as date_part')
+                                ->where('time_from','>=',$todaydate)
+                                ->pluck('date_part')
+                                ->toArray();
+                            if($dates){
+                                return response()->json([
+                                    "message" => "appointments found for user",
+                                    "status" => true,
+                                    "data" => $dates
+                                ],200);
+                            }else{
+                                return response()->json([
+                                    "message" => "no appointments found for user",
+                                    "status" => false,
+                                    "data" => ""
+                                ],200);
+                            }
 
-                        $user_table = $userId."_app";
-                        $todaydate =Carbon::now()->format('Y-m-d');
-                        $dates =DB::table($user_table)
-                            ->selectRaw('DISTINCT DATE(time_from) as date_part')
-                            ->where('time_from','>=',$todaydate)
-                            ->pluck('date_part')
-                            ->toArray();
-                        if($dates){
-                            return response()->json([
-                                "message" => "appointments found for user",
-                                "status" => true,
-                                "data" => $dates
-                            ],200);
                         }else{
+                            $user_data =[
+                                "email"=>$user_info["email"],
+                                "username"=>$user_info["username"]
+                            ];
+                            $sendemail = new tempsingin();
+                            $sendemail->sendEmail( $user_data);
                             return response()->json([
-                                "message" => "no appointments found for user",
-                                "status" => false,
-                                "data" => ""
-                            ],200);
+                                "message"=>"user need to be verified to enter"
+                            ],401);
                         }
+
+
+
+
+                        
 
 
 
