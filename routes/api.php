@@ -50,6 +50,7 @@ Route::post('/getPeople',[PeopleController::class,'getFollowing']);
 Route::post('/followUser',[PeopleController::class,'followPerson']);
 Route::post('/unfollowPeople',[PeopleController::class,'unfollowPeople']);
 Route::post('/searchPeople',[PeopleController::class,'searchPeople']);
+
 Route::post('/setrequest' ,[RequestController::class,"setrequest"]);
 Route::post("/checkDate",[RequestController::class,"checkDateAvailability"]);
 Route::post("/sendRequest",[RequestController::class,"sendRequest"]);

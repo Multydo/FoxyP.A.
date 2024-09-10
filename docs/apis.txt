@@ -1,4 +1,4 @@
-1. /signin_user
+1. /register_user
 
     *info:
 
@@ -21,27 +21,26 @@
         **email alredy exists error : 
             "message" => "user email alredy exists"
             (code:409)
+
+        **user email exists but needs verification:
+            "message"=>"email already exists abut not verified , verification coe sent"
+            (code:403)
         
         **username alredy exists error:
             "message" => "user name alredy exists"
             (code:409)
         
-        **email sent to the user:
-            "messange" => "email sent sucsessfuly"
+        **email sent to the user and he got registerd:
+            "message"=>"user registerd",
+            "token"=>USER_TOKEN
             (code:200)
 
-        **problem happened and email was not sent correctly:
-            "message"=>"internal server error (mail not sent)"
-            (code:500)
 
-        **problem happened in the session during ( saving / geting / deleting ):
-            "massage"=>"internal server error (problem in session)" 
-            (code:500)
     
 
 
 
-2. /verifying
+2. /verify
 
     *info:
         this api will request the 4 digit verification code sent to the user when using ( api 1 ) . it is the second step
@@ -51,79 +50,27 @@
         will be created fr his future data . api does not need a token but it will need a json array in the form:
 
         {
-            "code" :"8713"
+        "code":" 1815",
+        "timezone": 17
         }
-
     *resources:
-        **verification and table creation was successful:
-            "message" => "tables are done"
-            "token" => USER_CRESTED_TOKEN
+        **useris alredy verified how did he get here :
+            "message"=>"user alredy is verified"
+            (code:405)
+
+        **all good to do he is verified:
+            "message"=>"user good to go"
             (code:201)
 
-        **setting the user ables failed :
-            "message" => "internal server error (error in setting the user tables)"
-            (code:500)
+       
 
         **user inputed a wrong code thus verification failed:
             "message"=>"verification code does not match"
-            (code:401)
+            (code:400)
         
-        **problem happened in session:
-            "message"=>"internal server error (problem in session)"
-            (code:500)
+       
 
-3./save_settings
 
-    *info:
-
-        this api is the last step of signing in the user in needs the token sent from the (api 2) and a json array 
-        listed in it the time zone code of the user (IT NEED TO BE AN INTIGER NUMBER ex: 3,2,-1,-4,5) and the json 
-        array need to take the form of :
-
-        {
-            "timezone": 3
-        }
-
-    *responses:
-        
-        **the default user seettings was saved successfuly and user can login:
-            "massag"=>"setting data saved"
-            (code:200)
-        
-        **problem in server caused the settings to not be saved :
-            "massag"=>"internal serer error (settings data not saved)"
-            (code:500)
-
-        **problem in session aused to a failure in saving the user time zone code:
-            "message"=> "internal server error (failed to input timezon to session)"
-            (code:500)
-
-4./autoLogin
-
-    *info:
-        
-        to make lunching the app easier the user can loign with his saved token on his phone this functionality
-        will fail if the user last time visiting the app is more than two weeks. the api needs the user token 
-        and no need to pass an thins in the body of the json request will need the time zone and any error 
-        will cause the user to login manualy (api 5).
-
-    *responses:
-
-        **user last time visiting the app is more than 2 weeks so his token expired:
-            "message"=>"token expired"
-            (code:401)
-        
-        **problem in server the (last_used_at) slot in the DB is null :
-            "massage"=>"internal server error (token last_used_at is null)"
-            (code:500)
-        
-        **user is verified and can go to home page :
-            "message"=>"user is good to go"
-            (code:200)
-
-        **token was not found in the DB:
-            "message" => "token was not found"
-            (code:401)
 
 5./login_user
 
@@ -155,7 +102,11 @@
 
     *info:
 
-        this api will ge the user available appointments dates by just sending an empty request to it (token needed)
+        this api will ge the user available appointments dates  (token needed)
+
+            {
+                "timezone":3
+            }
 
     *responses:
 
@@ -177,6 +128,16 @@
             "status" => false,
             "data" => ""
             code(200)
+        
+        **token expired and user need to login manualy:
+            "message"=>"token expired"
+            (code:401)
+        **server error go login manualy:
+            "massage"=>"internal server error (token last_used_at is null)"
+            (code:500)
+        ** user not verified:
+            "message"=>"user need to be verified to enter"
+            (code:401)
 
 7. /getSettings
 
@@ -221,8 +182,64 @@
         **user was not found or broken token:
             "message"=>"user was not found or a broken token"
             code(401)
+8./showDetails
+    *info:
+        this request will get the details of that reqwested date to show all appointments in it:
 
-8. /saveSettings
+        {
+        "r_date":"2024-09-10"
+        }
+    *response:
+        **the app data :
+            "time_data" => time_data
+            (code:200)
+        **what the fuck happened?? :
+            "message"=>"Bad Request"
+            (code:400)
+        **our user is travling in time :
+            "message"=>"the requested date is in the past , are you a time travler ?"
+            (code:418)
+
+9./getSettings
+    *info:
+        get the user settings by sending an empty request
+    *response:
+        **user data found:
+            "message": "user settings were found",
+            "data": {
+                "id": 2,
+                "owner_id": "2",
+                "work_from": "09:00:00",
+                "work_to": "17:00:00",
+                "break_time": "00:15:00",
+                "time_zone": 3,
+                "logic": "appointment",
+                "max_app": 10,
+                "monday": "accepted",
+                "tuesday": "accepted",
+                "wednesday": "accepted",
+                "thursday": "accepted",
+                "friday": "accepted",
+                "saturday": "rejected",
+                "sunday": "rejected",
+                "max_duration_swicth": 0,
+                "max_duration_time": "00:00:00",
+                "min_time_switch": 0,
+                "min_time": "00:00:00",
+                "app_fixed_duration_switch": 0,
+                "app_fixed_duration": "00:00:00",
+                "allow_dm": 0,
+                "created_at": "2024-09-09T18:44:22.000000Z",
+                "updated_at": "2024-09-09T19:47:42.000000Z"
+            }
+        **how is this happening :
+            "message"=>"no content found"
+            (code:204)
+        **user not found or we got a brken token manual login needed:
+            "message"=>"user was not found or a broken token"
+            (code:401)
+
+10. /saveSettings
 
     *info :
         this will save the setting of the user when he hit save the request need to have a token and take this form :
@@ -262,7 +279,7 @@
             "message"=>"user was not found or a broken token"
             code(401)
 
-9./getPeople
+11./getPeople
 
     *info:
         this api will give back all the users that the users had followed only the token is needed
@@ -282,7 +299,7 @@
                         ]
             }
             code(200)
-10./followUser 
+12./followUser 
     *info:
         the api will follow that person the user token is needed and the other person id is needed:
 
@@ -292,7 +309,7 @@
     *responses:
         **any error will happen will give code(500) becase we do not know what are the posible problem that might happen witch souldent
         **if worked you will get code(200) this meen you can continue and the follow was successful
-11./unfollowPeople
+13./unfollowPeople
     *info :
         the api will unflolow the user . the token and other person id needed 
             {
@@ -301,7 +318,7 @@
     *responses:
         **if any error it will get code(500)
         **if successful code(200)
-12./searchPeople   
+14./searchPeople   
     *info:
         it will search for the user if his account is public will return it it need the user token and the name to search
             {
@@ -323,3 +340,115 @@
 
             if f_status is "following" this mean we alredy followed this person
             if it is "null" this meen we did not follow him
+
+
+15./setrequest
+    *Info:
+
+        This endpoint is used to set a new request. It takes a JSON request in the following format:
+
+            {
+            "other_user": 2
+            }
+    *Responses:
+        **Success:
+            {
+                "userId": 2,
+                "info": {
+                    "work_from": "09:00",
+                    "work_to": "18:00",
+                    "time_zone": "UTC+2"
+                },
+                "full_days": ["2024-09-10", "2024-09-11"],
+                "info_day": {
+                    "monday": 1,
+                    "tuesday": 1,
+                    "wednesday": 1,
+                    "thursday": 1,
+                    "friday": 1,
+                    "saturday": 0,
+                    "sunday": 0
+                }
+            }
+                (code: 200)         
+
+        **Error (general server error during request):
+            {
+            "message": "everbebert"
+            }
+            (code: 500)
+
+16./checkDate
+    Info:
+
+        This endpoint checks the availability of a given appointment date. It expects a JSON request in the following format:
+        {
+        "appointment_date": "2024-09-10",
+        "user_id": 1
+        }
+
+    Responses:
+
+        Success (Date available):
+
+            {
+            "userId": 1,
+            "r_date": "2024-09-10",
+            "time_data": {
+                "from": "09:00",
+                "to": "17:00"
+            },
+            "work_data": {
+                "work_from": "09:00",
+                "work_to": "17:00"
+            }
+            }
+            (code: 200)
+
+        Date full/closed:
+            {
+                "message": "The requested date (2024-09-10) for that person is full/closed. Please select a date that might not be full/closed."
+            }
+            (code: 409)
+
+        Date in the past:
+            {
+                "message": "The requested date (2024-09-10) is in the past. Please select a suitable date."
+            }
+            (code: 400)
+
+17./sendRequest
+
+    Info:
+    
+        This endpoint sends a finalized appointment request. It expects a JSON request in the following format:
+        {
+        "userId":1,
+        "r_date":"2024-09-10",
+        "starting_t":"18:50:00",
+        "ending_t":"19:30:00",
+        "r_title":"test",
+        "r_desc":"testing"
+    
+        }
+
+    Responses:
+
+        Success (Request Sent Successfully):
+        {
+            "message": "Request sent successfully"
+        }
+        (code: 200)
+
+        Time Conflict or Invalid Time Input:
+        {
+            "message": "time inputted wrong or appointment time conflicts with other appointments"
+        }
+        (code: 409)
+
+        Time in the Past:
+
+        {
+            "message": "The requested time is in the past. Please select a suitable time."
+        }
+        (code: 400)

@@ -81,7 +81,7 @@ class UserController extends Controller
                 $this->sendEmail($user_data);
                 return response()->json([
                     "message"=>"email already exists abut not verified , verification coe sent"
-                ],409);
+                ],403);
             }
            
         }
