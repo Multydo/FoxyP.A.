@@ -9,7 +9,7 @@ use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\PeopleController;
 use App\Http\Controllers\API\RequestController;
-use App\Http\Controllers\API\tempsingin;
+
 
 // testing files links
 use App\Http\Controllers\API\testGetInfo;
@@ -32,18 +32,18 @@ Route::get('/', function () {
 });
 
 
+// registering user
+Route::post("/register_user",[UserController::class,"register"]);
+Route::post("/verify",[UserController::class,"verify"]);
 
-Route::post("/testreg",[tempsingin::class,"register"]);
-Route::post("/verify",[tempsingin::class,"verify"]);
 
 
-
-Route::post('/signin_user',[UserController::class , "start_verification"]);
+//manual login
 Route::post('/login_user',[UserController::class , "login"] );
-Route::post('/save_settings', [TimeController::class, 'getTimeZone']);
-Route::post('/verifying',[UserController::class , "check_code"]);
-//Route::post('/autoLogin',[UserController::class, "tokenLogin"]);
+
+//home page and auto login
 Route::post('/home',[HomeController::class,"master"]);
+
 Route::post('/getSettings',[SettingsController::class,"getsettings"]);
 Route::post('/saveSettings', [SettingsController::class, 'saveSettings']);
 Route::post('/getPeople',[PeopleController::class,'getFollowing']);

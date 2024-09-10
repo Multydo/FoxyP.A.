@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Http\Controllers\API\SessionController;
+
 use App\Http\Controllers\API\DynamicTableController;
 use App\http\Controllers\API\UserController;
 
@@ -44,14 +44,9 @@ public function getTimeZone(Request $request){
        $userToken = $request->bearerToken();
        
         $timezoneOffset = $request->input('timezone');
-        $data = [
-            "key" => "time_zone",
-            "data" => "$timezoneOffset"
-        ];
-        $session_req = new SessionController;
-        $session_result = $session_req -> session_selector("put" , $data);
+       
 
-        if ($session_result){
+     
             $userTable = new DynamicTableController;
             $status = $userTable->fillSettings($timezoneOffset,$request);
             if($status){
@@ -64,12 +59,6 @@ public function getTimeZone(Request $request){
                 ],500);
             }
 
-        }else{
-            return response()->json([
-                "message"=> "internal server error (failed to input timezon to session)"
-                
-            ],500);
-        
-        }
+       
     }
 }
