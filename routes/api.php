@@ -9,6 +9,7 @@ use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\PeopleController;
 use App\Http\Controllers\API\RequestController;
+use App\Http\Controllers\API\ProfileController;
 
 
 // testing files links
@@ -54,6 +55,11 @@ Route::post('/searchPeople',[PeopleController::class,'searchPeople']);
 Route::post('/setrequest' ,[RequestController::class,"setrequest"]);
 Route::post("/checkDate",[RequestController::class,"checkDateAvailability"]);
 Route::post("/sendRequest",[RequestController::class,"sendRequest"]);
+
+//profile page 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'getProfile']);
+    Route::post('/profile', [ProfileController::class, 'updateProfile']);});
 
 //testing links not allowed in production
 

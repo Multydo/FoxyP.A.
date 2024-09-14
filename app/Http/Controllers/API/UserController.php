@@ -80,7 +80,7 @@ class UserController extends Controller
                 ];
                 $this->sendEmail($user_data);
                 return response()->json([
-                    "message"=>"email already exists abut not verified , verification coe sent"
+                    "message"=>"email already exists abut not verified , verification code sent"
                 ],403);
             }
            
