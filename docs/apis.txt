@@ -139,50 +139,9 @@
             "message"=>"user need to be verified to enter"
             (code:401)
 
-7. /getSettings
+7 . HAS BEEN REMOVED
 
-    *info:
-        this will get the settigns the user had setted to his acc the request can be empty all what is needed is the token
-
-    *responses:
-
-        **in case of Success:
-
-            {
-                "message" => "user settings were found",
-
-                "data" => {
-                    "work_from":"09:00:00",
-                    "work_to":"17:00:00",
-                    "break_time":"00:15:00",
-                    "time_zone":3,
-                    "logic":"appointment",
-                    "max_app":10,
-                    "monday":"accepted",
-                    "tuesday":"accepted",
-                    "wednesday":"accepted",
-                    "thursday":"accepted",
-                    "friday":"accepted",
-                    "saturday":"rejected",
-                    "sunday":"rejected",
-                    "max_duration_swicth":false,
-                    "max_duration_time":"00:00:00",
-                    "min_time_switch":false,
-                    "min_time":"00:00:00",
-                    "app_fixed_duration_switch":false,
-                    "app_fixed_duration":"00:00:00",
-                    "allow_dm":false
-                }
-            }
-            code(200)
-
-        **if no data found:
-            "message"=>"no content found"
-            code(204)
-        **user was not found or broken token:
-            "message"=>"user was not found or a broken token"
-            code(401)
-8./showDetails
+8./home/showDetails
     *info:
         this request will get the details of that reqwested date to show all appointments in it:
 
@@ -200,7 +159,7 @@
             "message"=>"the requested date is in the past , are you a time travler ?"
             (code:418)
 
-9./getSettings
+9./settings/getSettings
     *info:
         get the user settings by sending an empty request
     *response:
@@ -239,7 +198,7 @@
             "message"=>"user was not found or a broken token"
             (code:401)
 
-10. /saveSettings
+10. /settings/saveSettings
 
     *info :
         this will save the setting of the user when he hit save the request need to have a token and take this form :
@@ -279,7 +238,7 @@
             "message"=>"user was not found or a broken token"
             code(401)
 
-11./getPeople
+11./people/getPeople
 
     *info:
         this api will give back all the users that the users had followed only the token is needed
@@ -299,7 +258,7 @@
                         ]
             }
             code(200)
-12./followUser 
+12./people/followUser
     *info:
         the api will follow that person the user token is needed and the other person id is needed:
 
@@ -309,7 +268,7 @@
     *responses:
         **any error will happen will give code(500) becase we do not know what are the posible problem that might happen witch souldent
         **if worked you will get code(200) this meen you can continue and the follow was successful
-13./unfollowPeople
+13./people/unfollowPeople
     *info :
         the api will unflolow the user . the token and other person id needed 
             {
@@ -318,7 +277,7 @@
     *responses:
         **if any error it will get code(500)
         **if successful code(200)
-14./searchPeople   
+14./people/searchPeople  
     *info:
         it will search for the user if his account is public will return it it need the user token and the name to search
             {
@@ -342,7 +301,7 @@
             if it is "null" this meen we did not follow him
 
 
-15./setrequest
+15./requests/setrequest
     *Info:
 
         This endpoint is used to set a new request. It takes a JSON request in the following format:
@@ -378,7 +337,7 @@
             }
             (code: 500)
 
-16./checkDate
+16./requests/checkDate
     Info:
 
         This endpoint checks the availability of a given appointment date. It expects a JSON request in the following format:
@@ -417,7 +376,7 @@
             }
             (code: 400)
 
-17./sendRequest
+17./requests/checkDate
 
     Info:
     
@@ -452,3 +411,148 @@
             "message": "The requested time is in the past. Please select a suitable time."
         }
         (code: 400)
+
+
+
+18. /forgotpass
+
+    info :
+        it will send an email to the user with an otp to change the password
+
+    response:
+
+        true : it worked
+        fasle : it did not work  duuuhhh what do you thinck  :)
+
+19. /forgotpass/submit
+    info :
+        it take will take the v code and the two passwords :
+
+        {
+            "code":8033,
+            "pass_1":"12345678",
+            "pass_2":"12345678"
+        }
+
+    results :
+        it worked 
+        [
+            "message"=>"new pass is set",
+               
+        ]
+            code(201)
+        
+        the 2 passwords does not match [NOTE: THE OTP IN THIS CASE WILL NOT BE DELETED SO THE USER CAN USE IT AGAIN]:
+        "message"=>"passwords do not match"
+        code(403)
+
+        the otp does not match you need to request a new one :
+
+        "message"=>"verification code does not match"
+
+        code(401)
+
+20. /profile/getinfo 
+
+    info 
+        this will get the user profileinfo 
+
+        no body
+
+    responses 
+        it worked
+        {
+    "message": "user data found",
+    "data": {
+        "fname": "daniel",
+        "lname": "traboulsi",
+        "username": "da",
+        "email": "o9danieltra@gmail.com"
+    }
+
+    code(200)
+
+21./profile/changename
+
+    info 
+        it will change the person name :)
+
+        {
+            "fname":"daniel",
+            "lname":"traboulsi"
+
+        }
+
+        response
+
+        {"message":"user name saves"} code(200)
+
+22./profile/changeemail
+
+    info it will allow the user to change his email
+
+    {
+    "email":"o9danieltra@gmail.com"
+}
+
+response : 
+
+{"message":"user email saved and need verification"} code(200)
+
+new email alredy exists
+"message"=>"email alresy in use" code(401)
+
+something went wrong with the otp
+"message"=>"internal server error (problem in sending otp email)" code(500) 
+
+23./profile/verifynewemail
+
+info 
+
+the user will not be able to use he new email till he verify it the old one will still active till the new one got verified
+
+{
+    "code":" 7279"
+}
+
+responses
+
+{"message":"user new email is set to sart using it"} code(201)
+
+otp wrong and he need to input the new email again to send a new otp 
+
+"message"=>"verification code does not match" code(400)
+
+
+
+23./profile/changepass
+
+info 
+
+the api will allw the user to change his password 
+
+
+{
+    "old_password":"12345678",
+    "new_pass_1":"1234567890",
+    "new_pass_2":"1234567890"
+}
+
+Responses
+
+all good to go :
+
+"message"=>"new pass is set" code(201)
+
+the 2 pas does not match :
+
+"message"=>"the new pass does not match" code(403)
+
+the old pass does not match 
+
+"message"=>"old pass does not match" code(401)
+
+
+
+
+

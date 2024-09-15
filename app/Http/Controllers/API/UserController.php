@@ -12,6 +12,7 @@ use App\Http\Requests\SigninRequest;
 use App\Http\Requests\SigninVCodeRequest;
 use App\Http\Controllers\API\DynamicTableController;
 use App\Mail\signin_verification_email_code;
+use App\Mail\forgot_pass;
 use Mail;
 
 use Auth;
@@ -188,7 +189,7 @@ class UserController extends Controller
             $user = User::where("email",$user_email["email"])->first();
             $user->verified = true;
             $user->save();
-
+            Otp::where("email", $user_email["email"])->delete();
             return response()->json([
                 "message"=>"user good to go"
             ],201);
@@ -261,5 +262,71 @@ class UserController extends Controller
             return false;
         }
        
+    }
+    public function forgoPassword(Request $request){
+        $token = $request->bearerToken();
+        $userId = $this->getId($token);
+        $userInfo = User::find($userId);
+        
+      //  dd($request->pass_1);
+        $serverOtp = Otp::where("email",$userInfo->email)->select("code")->first();
+        if($request->code == $serverOtp["code"]){
+            $pass_1 = $request->pass_1;
+            $pass_2= $request->pass_2;
+
+            if($pass_1 == $pass_2){
+                $userInfo ->password = $pass_1;
+                $userInfo ->save();
+                Otp::where("email",$userInfo["email"])->delete();
+                return response()->json([
+                "message"=>"new pass is set",
+               
+                ],201);
+            }else{
+                return response()->json([
+                    "message"=>"passwords do not match"
+                ],403);
+            }
+        }else{
+            Otp::where("email",$userInfo["email"])->delete();
+            return response()->json([
+                "message"=>"verification code does not match"
+            ],401);
+        }
+    }
+
+    public function forgotPasswordCode(Request $request){
+        
+        $token = $request->bearerToken();
+        $userId = $this->getId($token);
+
+        $userInfo = User::where("id",$userId)->select("email","username")->first();
+        $user_name = $userInfo['username'];
+        $user_email = $userInfo['email'];
+       // dd($userInfo);
+        try{
+            $very_code = rand(1000,9999);
+            $vcode = new Otp();
+            $vcode->email = $userInfo["email"];
+            $vcode->code = $very_code;
+            $vcode->save();
+
+
+        
+        
+        
+            $details = [
+            
+                'fname' => "$user_name",
+                'resetCode' => "$very_code"
+
+            ];
+    
+        Mail::to("$user_email")->send(new forgot_pass($details) );
+       }catch(Throwable $e){
+        return false;
+       }
+        
+        return true ;
     }
 }
