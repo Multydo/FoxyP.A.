@@ -37,24 +37,39 @@ Route::get('/', function () {
 Route::post("/register_user",[UserController::class,"register"]);
 Route::post("/verify",[UserController::class,"verify"]);
 
-
+//forgot pass 
+Route::middleware('api')->post("/forgotpass",[UserController::class,"forgotPasswordCode"]);
+Route::middleware('api')->post("/forgotpass/submit",[UserController::class,"forgoPassword"]);
 
 //manual login
 Route::post('/login_user',[UserController::class , "login"] );
 
 //home page and auto login
-Route::post('/home',[HomeController::class,"master"]);
+Route::middleware('api')->post('/home',[HomeController::class,"master"]);
+Route::middleware('api')->post("/home/showDetails",[HomeController::class,"showDetails"]);
 
-Route::post('/getSettings',[SettingsController::class,"getsettings"]);
-Route::post('/saveSettings', [SettingsController::class, 'saveSettings']);
-Route::post('/getPeople',[PeopleController::class,'getFollowing']);
-Route::post('/followUser',[PeopleController::class,'followPerson']);
-Route::post('/unfollowPeople',[PeopleController::class,'unfollowPeople']);
-Route::post('/searchPeople',[PeopleController::class,'searchPeople']);
 
-Route::post('/setrequest' ,[RequestController::class,"setrequest"]);
-Route::post("/checkDate",[RequestController::class,"checkDateAvailability"]);
-Route::post("/sendRequest",[RequestController::class,"sendRequest"]);
+//profile page
+Route::middleware('api')->post("/profile/getinfo",[ProfileController::class,"getProfile"]);
+Route::middleware('api')->post("/profile/changename",[ProfileController::class,"changeName"]);
+Route::middleware('api')->post("/profile/changeemail",[ProfileController::class,"changeEmail"]);
+Route::middleware('api')->post("/profile/verifynewemail",[ProfileController::class,"verifyNewEmail"]);
+Route::middleware('api')->post("/profile/changepass",[ProfileController::class,"changePassword"]);
+
+//settings page
+Route::middleware('api')->post('/settings/getSettings',[SettingsController::class,"getsettings"]);
+Route::middleware('api')->post('/settings/saveSettings', [SettingsController::class, 'saveSettings']);
+
+//people page
+Route::middleware('api')->post('/people/getPeople',[PeopleController::class,'getFollowing']);
+Route::middleware('api')->post('/people/followUser',[PeopleController::class,'followPerson']);
+Route::middleware('api')->post('/people/unfollowPeople',[PeopleController::class,'unfollowPeople']);
+Route::middleware('api')->post('/people/searchPeople',[PeopleController::class,'searchPeople']);
+
+//request page
+Route::middleware('api')->post('/requests/setrequest' ,[RequestController::class,"setrequest"]);
+Route::middleware('api')->post("/requests/checkDate",[RequestController::class,"checkDateAvailability"]);
+Route::middleware('api')->post("/requests/checkDate",[RequestController::class,"sendRequest"]);
 
 //profile page 
 Route::middleware('auth')->group(function () {
@@ -63,7 +78,7 @@ Route::middleware('auth')->group(function () {
 
 //testing links not allowed in production
 
-Route::post("/showDetails",[HomeController::class,"showDetails"]);
+
 
 
 Route::get('/store',[UserController::class , "store"]);
