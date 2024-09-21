@@ -7,9 +7,57 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+/**
+ * @OA\Tag(
+ *     name="People",
+ *     description="Operations related to people (followers, following, etc.)"
+ * )
+ */
 
 class PeopleController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/people/getPeople",
+     *     summary="Get list of users the current user is following",
+     *     description="Returns a list of users that the authenticated user is following.",
+     *     operationId="getFollowing",
+     *     tags={"People"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="users found"),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="fname", type="string", example="John"),
+     *                     @OA\Property(property="lname", type="string", example="Doe"),
+     *                     @OA\Property(property="id", type="integer", example=123)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user not found or token is broken")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function getFollowing(Request $request){
         $getId = new UserController;
         $userId= $getId-> getId($request);
@@ -54,6 +102,49 @@ class PeopleController extends Controller
             ],401);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/people/followUser",
+     *     summary="Follow a user",
+     *     description="Allows the authenticated user to follow another user.",
+     *     operationId="followPerson",
+     *     tags={"People"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"other_user"},
+     *             @OA\Property(
+     *                 property="other_user",
+     *                 type="integer",
+     *                 description="ID of the user to follow",
+     *                 example=456
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User followed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user followed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user not found or token is broken")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function followPerson(Request $request){
         $token = $request -> bearerToken();
         $get_user_id = new UserController;
@@ -113,6 +204,49 @@ class PeopleController extends Controller
         ],200);
         
     }
+    /**
+     * @OA\Post(
+     *     path="/api/people/unfollowPeople",
+     *     summary="Unfollow a user",
+     *     description="Allows the authenticated user to unfollow another user.",
+     *     operationId="unfollowPeople",
+     *     tags={"People"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"other_user"},
+     *             @OA\Property(
+     *                 property="other_user",
+     *                 type="integer",
+     *                 description="ID of the user to unfollow",
+     *                 example=456
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User unfollowed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user unfollowed")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user not found or token is broken")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
 
     public function unfollowPeople(Request $request){
         $token = $request -> bearerToken();
@@ -170,6 +304,59 @@ class PeopleController extends Controller
 
         ],200);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/people/searchPeople",
+     *     summary="Search for people",
+     *     description="Allows the authenticated user to search for other users.",
+     *     operationId="searchPeople",
+     *     tags={"People"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"search"},
+     *             @OA\Property(
+     *                 property="search",
+     *                 type="string",
+     *                 description="Search term",
+     *                 example="John"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Search results",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="fname", type="string", example="John"),
+     *                     @OA\Property(property="lname", type="string", example="Doe"),
+     *                     @OA\Property(property="f_status", type="string", example="following"),
+     *                     @OA\Property(property="id", type="integer", example=123)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user not found or token is broken")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
 
     public function searchPeople(Request $request){
         $token = $request -> bearerToken();
