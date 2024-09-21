@@ -23,8 +23,15 @@ use App\Models\personal_access_token;
 use App\Models\setting;
 use Throwable;
 
+/**
+ * @OA\Tag(
+ *     name="User",
+ *     description="Operations related to user authentication and account management"
+ * )
+ */
 class UserController extends Controller
 {
+    
     public function getId($usertoken){
         if (is_object($usertoken) && method_exists($usertoken, 'bearerToken')) {
     
@@ -58,6 +65,57 @@ class UserController extends Controller
 
         return $user_id;
     }
+    
+    /**
+     * @OA\Post(
+     *     path="/api/register_user",
+     *     summary="Register a new user",
+     *     description="Registers a new user and sends a verification email.",
+     *     operationId="registerUser",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"fname", "lname", "username", "email", "password"},
+     *             @OA\Property(property="fname", type="string", description="First name", example="John"),
+     *             @OA\Property(property="lname", type="string", description="Last name", example="Doe"),
+     *             @OA\Property(property="username", type="string", description="Username", example="johndoe"),
+     *             @OA\Property(property="email", type="string", format="email", description="Email address", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", description="Password", example="Password123!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User registered successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user registered"),
+     *             @OA\Property(property="token", type="string", example="token_value_here")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Email already exists but not verified, verification code sent",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="email already exists but not verified, verification code sent")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email or username already exists",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user email already exists")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="An error occurred")
+     *         )
+     *     )
+     * )
+     */
+
     public function register(Request $request){
         $user_data = $request->all();
         
@@ -166,6 +224,51 @@ class UserController extends Controller
         
         return true ;
     }
+    /**
+     * @OA\Post(
+     *     path="/api/verify",
+     *     summary="Verify a user's email",
+     *     description="Verifies a user's email address using the verification code sent to their email.",
+     *     operationId="verifyUser",
+     *     tags={"User"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"code"},
+     *             @OA\Property(property="code", type="string", description="Verification code sent to user's email", example="1234")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User verified successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user good to go")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Verification code does not match",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="verification code does not match")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=405,
+     *         description="User already verified",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user already is verified")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     )
+     * )
+     */
 
 
     public function verify(Request $request){
@@ -205,6 +308,46 @@ class UserController extends Controller
         
         
     }
+    /**
+     * @OA\Post(
+     *     path="/api/login_user",
+     *     summary="Login a user",
+     *     description="Authenticates a user and returns a token.",
+     *     operationId="loginUser",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password", "timezone"},
+     *             @OA\Property(property="email", type="string", format="email", description="User's email address", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", description="User's password", example="Password123!"),
+     *             @OA\Property(property="timezone", type="string", description="User's timezone", example="UTC")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User logged in successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="user logged in"),
+     *             @OA\Property(property="token", type="string", example="token_value_here")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="email or password do not match")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="An error occurred")
+     *         )
+     *     )
+     * )
+     */
     public function login(LoginRequest $user_data){
         $credentials = $user_data->only('email', 'password');
         if(Auth::attempt($credentials)){
@@ -263,6 +406,46 @@ class UserController extends Controller
         }
        
     }
+    /**
+     * @OA\Post(
+     *     path="/api/forgotpass",
+     *     summary="Reset user password",
+     *     description="Resets the user's password using a verification code.",
+     *     operationId="resetPassword",
+     *     tags={"User"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"code", "pass_1", "pass_2"},
+     *             @OA\Property(property="code", type="string", description="Verification code sent to user's email", example="1234"),
+     *             @OA\Property(property="pass_1", type="string", format="password", description="New password", example="NewPassword123!"),
+     *             @OA\Property(property="pass_2", type="string", format="password", description="Confirm new password", example="NewPassword123!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Password reset successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="new pass is set")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Verification code does not match",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="verification code does not match")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Passwords do not match",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="passwords do not match")
+     *         )
+     *     )
+     * )
+     */
     public function forgoPassword(Request $request){
         $token = $request->bearerToken();
         $userId = $this->getId($token);
@@ -294,6 +477,30 @@ class UserController extends Controller
             ],401);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/forgotpass/submit",
+     *     summary="Send password reset code",
+     *     description="Sends a verification code to the user's email for password reset.",
+     *     operationId="sendPasswordResetCode",
+     *     tags={"User"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Verification code sent successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Verification code sent")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="An error occurred")
+     *         )
+     *     )
+     * )
+     */
 
     public function forgotPasswordCode(Request $request){
         

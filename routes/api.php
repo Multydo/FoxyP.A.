@@ -69,7 +69,7 @@ Route::middleware('api')->post('/people/searchPeople',[PeopleController::class,'
 //request page
 Route::middleware('api')->post('/requests/setrequest' ,[RequestController::class,"setrequest"]);
 Route::middleware('api')->post("/requests/checkDate",[RequestController::class,"checkDateAvailability"]);
-Route::middleware('api')->post("/requests/checkDate",[RequestController::class,"sendRequest"]);
+Route::middleware('api')->post("/requests/sendRequest",[RequestController::class,"sendRequest"]);
 
 //testing links not allowed in production
 
