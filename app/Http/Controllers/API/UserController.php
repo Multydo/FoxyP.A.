@@ -5,23 +5,18 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\http\Controllers\API\signin_verification_code;
-use App\Http\Controllers\API\SessionController;
 use App\Models\Otp;
-use App\Http\Requests\SigninRequest;
-use App\Http\Requests\SigninVCodeRequest;
 use App\Http\Controllers\API\DynamicTableController;
 use App\Mail\signin_verification_email_code;
 use App\Mail\forgot_pass;
 use Mail;
-
+use Illuminate\Support\Str;
 use Auth;
-use App\Http\Requests\LoginRequest;
-use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Carbon;
 use App\Models\personal_access_token;
 use App\Models\setting;
 use Throwable;
+use App\Models\Password_reset_token;
 
 /**
  * @OA\Tag(
@@ -31,7 +26,6 @@ use Throwable;
  */
 class UserController extends Controller
 {
-    
     public function getId($usertoken){
         if (is_object($usertoken) && method_exists($usertoken, 'bearerToken')) {
     
@@ -137,9 +131,10 @@ class UserController extends Controller
                     "email" => $request->email,
                     "username" => $user_info["username"]
                 ];
-                $this->sendEmail($user_data);
+                //activate this code before production
+                $this->sendEmail($user_data);          
                 return response()->json([
-                    "message"=>"email already exists abut not verified , verification coe sent"
+                    "message"=>"email already exists abut not verified , verification code sent"
                 ],403);
             }
            
@@ -170,7 +165,8 @@ class UserController extends Controller
          ];
 
          $token = $user->createToken($request['username'])->plainTextToken;
-
+         
+         //activate this code beforer production
          $this->sendEmail($user_data);
 
          return response()->json([
@@ -273,19 +269,20 @@ class UserController extends Controller
 
     public function verify(Request $request){
         $user_side_verification_code = $request["code"];
+        
         //dd($user_side_verification_code);
         $token = $request->bearerToken();
         $user_id = $this->getId($token);
 
-        $user_email = User::where("id",$user_id)->select("email","verified")->first();
+        $user_email = User::where("id",$user_id)->select("email","verified","username")->first();
         if($user_email["verified"]){
             return response()->json([
                 "message"=>"user alredy is verified"
             ],405);
         }else{
-            $vcode = Otp::where("email",$user_email["email"])->select("code")->orderBy("id", "desc")->first();
-        //dd($vcode["code"]);
-        if($vcode["code"] == $user_side_verification_code){
+            $vcode = Otp::where("email",$user_email->email)->select("code")->orderBy("id", "desc")->first();
+        
+            if($vcode->code == $user_side_verification_code){
             $setTables = new DynamicTableController;
             $status = $setTables ->UserTableLucher($request);
 
@@ -298,6 +295,11 @@ class UserController extends Controller
             ],201);
         }else{
             Otp::where("email", $user_email["email"])->delete();
+            $user_info =[
+                "email"=>$user_email->email,
+                "username"=>$user_email->username
+            ];
+            $state=$this -> sendEmail($user_info);
             return response()->json([
                 "message"=>"verification code does not match"
             ],400);
@@ -348,7 +350,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function login(LoginRequest $user_data){
+    public function login(Request $user_data){
         $credentials = $user_data->only('email', 'password');
         if(Auth::attempt($credentials)){
             
@@ -446,7 +448,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function forgoPassword(Request $request){
+        /*public function forgoPassword(Request $request){
         $token = $request->bearerToken();
         $userId = $this->getId($token);
         $userInfo = User::find($userId);
@@ -472,11 +474,96 @@ class UserController extends Controller
             }
         }else{
             Otp::where("email",$userInfo["email"])->delete();
+            $this->forgotPasswordCode($userInfo["email"]);
             return response()->json([
                 "message"=>"verification code does not match"
             ],401);
         }
+    }*/
+
+    public function forgoPassword(Request $request){
+        $token = $request->token;
+        $user_email = Password_reset_token::where("token",$token)->select("email")->latest()->first();
+        if($user_email){
+            $serverOtp = Otp::where("email",$user_email->email)->select("code")->latest()->first();
+            
+            if($request->code == $serverOtp->code){
+                $pass_1 = $request->pass_1;
+                $pass_2= $request->pass_2;
+            
+                if($pass_1 == $pass_2){
+                    $userInfo = User::where("email",$user_email->email)->first();
+                    $userInfo ->password = $pass_1;
+                    $userInfo ->save();
+                    Otp::where("email",$user_email->email)->delete();
+                    Password_reset_token::where("token",$token)->delete();
+                    return response()->json([
+                    "message"=>"new pass is set",
+                    
+                    ],201);
+                }else{
+                    return response()->json([
+                        "message"=>"passwords do not match"
+                    ],403);
+                }
+            }else{
+                Otp::where("email",$user_email)->delete();
+                
+                // Create a new Request object with the email
+                $newRequest = new Request();
+                $newRequest->merge(['email' => $user_email]);
+                    
+                // Call forgotPasswordCode with the new request
+                $this->forgotPasswordCode($newRequest);
+                return response()->json([
+                    "message"=>"verification code does not match"
+                ],401);
+            }
+        }else{
+            Otp::where("email",$user_email)->delete();
+            Password_reset_token::where("token",$token)->delete();
+            return response()->json([
+                    "message" => "Internal server error. (problem is matching user with his token)"
+                ], 500);
+        }
+
     }
+
+    public function forgotPasswordSetup(Request $request){
+        $email = $request->email;
+        
+        // Check if user exists by email
+        $user_state = User::where("email", $email)->exists();
+        if ($user_state) {
+            $userInfo = User::where("email", $email)->select("id", "username")->first();
+            $user_name = $userInfo->username;
+            $user_id = $userInfo->id;
+        
+            // Remove old token if it exists
+            $old_token = Password_reset_token::where("email", $email);
+            if ($old_token) {
+                $old_token->delete();
+            }
+        
+            // Create a new personal access token in unhashed form
+            $new_token = Str::random(64); // Generate random string for token
+        
+            $temp_token = new Password_reset_token();
+            $temp_token->email = $email;
+            $temp_token->token = $new_token;
+            $temp_token->save();
+            // Return the unhashed token
+            return response()->json([
+                "message" => "Token reset successful",
+                "token" => $new_token 
+            ], 200);
+        }else {
+            return response()->json([
+                "message" => "User not found. Check the email you entered."
+            ], 404);
+        }
+    }
+
     /**
      * @OA\Post(
      *     path="/api/forgotpass/submit",
@@ -502,38 +589,39 @@ class UserController extends Controller
      * )
      */
 
-    public function forgotPasswordCode(Request $request){
+    public function forgotPasswordCode(Request $request) {
+            $email = $request->email;
+            $userInfo = User::where("email", $email)->select("id", "username")->first();
+            $user_name = $userInfo->username;
+            $user_id = $userInfo->id;
         
-        $token = $request->bearerToken();
-        $userId = $this->getId($token);
-
-        $userInfo = User::where("id",$userId)->select("email","username")->first();
-        $user_name = $userInfo['username'];
-        $user_email = $userInfo['email'];
-       // dd($userInfo);
-        try{
-            $very_code = rand(1000,9999);
+        
+        
+            
+        
+            // Generate and save verification code
+            $very_code = rand(1000, 9999);
             $vcode = new Otp();
-            $vcode->email = $userInfo["email"];
+            $vcode->email = $email;
             $vcode->code = $very_code;
             $vcode->save();
-
-
         
-        
-        
+            // Send email with verification code
             $details = [
-            
-                'fname' => "$user_name",
-                'resetCode' => "$very_code"
-
+                'fname' => $user_name,
+                'resetCode' => $very_code
             ];
-    
-        Mail::to("$user_email")->send(new forgot_pass($details) );
-       }catch(Throwable $e){
-        return false;
-       }
         
-        return true ;
+            try {
+                Mail::to($email)->send(new forgot_pass($details));
+            } catch (Throwable $e) {
+                return response()->json([
+                    "message" => "Internal server error. (problem in sending email)"
+                ], 500);
+            }
+
+
+        
     }
+
 }

@@ -1,0 +1,314 @@
+@media (min-width: 769px) {
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    }
+
+    .child {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .header {
+        width: 80%;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        margin-top: 20px;
+    }
+    .go_back {
+        display: flex;
+        flex-direction: column;
+        color: #ffa500;
+        font-size: large;
+        font-weight: bolder;
+        text-decoration: none;
+        border: 2px solid black;
+        border-right: 4px solid black;
+        border-bottom: 4px solid black;
+        border-radius: 10px;
+        margin-right: 20px;
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+    .go_back:hover {
+        border-color: #ffa500;
+        scale: 1.1;
+        box-shadow: 4px 4px 10px #ffa500;
+    }
+    .left_part {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .search_people {
+        width: 80%;
+        padding: 10px;
+
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        margin-top: 20px;
+    }
+    .form_content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .search_in_part {
+        width: 70%;
+    }
+    .search_in_part input {
+        font-weight: bolder;
+
+        width: 95%;
+        border: 2px solid black !important;
+        border-bottom: 4px solid black !important;
+        border-right: 4px solid black !important;
+        outline: none;
+        background: #ffffff;
+
+        border-radius: 20px;
+
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .search_in_part input:focus {
+        border-color: #ffa500 !important;
+    }
+
+    .search_in_part input::spelling-error {
+        color: red;
+        text-decoration: underline;
+    }
+    .search_btn_div {
+    }
+    .search_btn {
+        border: 0;
+        background-color: transparent;
+    }
+    .search_box,
+    .following_box {
+        width: 80%;
+        margin-top: 50px;
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        padding: 20px;
+    }
+    .content {
+        display: flex;
+        width: 98%;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid gray;
+        padding: 10px;
+    }
+    #follow_user {
+        border: 0;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+    #follow_user p {
+        text-align: center;
+        padding: 5px;
+    }
+    #follow_user:hover {
+        color: #ffa500;
+    }
+    .be_follow_div_2 {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 20%;
+    }
+    #request {
+        border: 0;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+    #request lord-icon {
+        margin-left: 20%;
+    }
+
+    #request:hover {
+        color: #ffa500;
+    }
+    .person {
+        max-width: 50%;
+    }
+}
+@media (max-width: 768px) {
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    }
+
+    .child {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .header {
+        width: 80%;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        margin-top: 20px;
+        flex-direction: column;
+    }
+    .go_back {
+        display: flex;
+        flex-direction: column;
+        color: #ffa500;
+        font-size: large;
+        font-weight: bolder;
+        text-decoration: none;
+        border: 2px solid black;
+        border-right: 4px solid black;
+        border-bottom: 4px solid black;
+        border-radius: 10px;
+        margin-right: 20px;
+        padding: 5px;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .go_back:hover {
+        border-color: #ffa500;
+        scale: 1.1;
+        box-shadow: 4px 4px 10px #ffa500;
+    }
+    .left_part {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .search_people {
+        width: 80%;
+        padding: 10px;
+
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        margin-top: 20px;
+    }
+    .form_content {
+        display: flex;
+        /* flex-direction: column;*/
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search_in_part {
+        width: 80%;
+    }
+    .search_in_part input {
+        font-weight: bolder;
+        font-size: xx-small;
+        width: 90%;
+        border: 2px solid black !important;
+        border-bottom: 4px solid black !important;
+        border-right: 4px solid black !important;
+        outline: none;
+        background: #ffffff;
+
+        border-radius: 20px;
+
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+    .search_in_part input:focus {
+        border-color: #ffa500 !important;
+    }
+
+    .search_in_part input::spelling-error {
+        color: red;
+        text-decoration: underline;
+    }
+    .search_btn_div {
+    }
+    .search_btn {
+        border: 0;
+        background-color: transparent;
+    }
+    .search_btn lord-icon {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    .search_box,
+    .following_box {
+        width: 80%;
+        margin-top: 50px;
+        border-radius: 20px;
+        box-shadow: 4px 4px 10px gray;
+        padding: 20px;
+    }
+    .content {
+        display: flex;
+        width: 98%;
+        align-items: center;
+
+        border-bottom: 1px solid gray;
+        padding: 10px;
+    }
+    #follow_user {
+        border: 0;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+    #follow_user p {
+        text-align: center;
+        padding: 5px;
+    }
+    #follow_user:hover {
+        color: #ffa500;
+    }
+    .be_follow_div_2 {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 20%;
+    }
+    #request {
+        border: 0;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+    #request:hover {
+        color: #ffa500;
+    }
+    .person {
+        max-width: 50%;
+    }
+}

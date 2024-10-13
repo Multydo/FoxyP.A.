@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\http\Controllers\API\UserController;
 use App\Models\setting;
 use App\Http\Requests\settingsRequest;
+use Illuminate\Support\Carbon;
 
 /**
  * @OA\Tag(
@@ -139,13 +140,40 @@ class SettingsController extends Controller
      */
 
     public function saveSettings(Request $request){
+       
         $token = $request->bearerToken();
         $get_user_id = new UserController;
+
         $userId = $get_user_id -> getId($token);
         if($userId){
             $data = $request->json()->all();
-            $status = setting::where("owner_id",$userId)->update($data);
-            if($status){
+            
+            $user_settings = setting::where("owner_id",$userId)->first();
+
+            if($user_settings){
+                $user_settings -> work_from = $data["work_from"];
+                $user_settings -> work_to = $data["work_to"];
+                $user_settings -> break_time  = $data["break_time"];
+                $user_settings -> time_zone = $data["time_zone"];
+                $user_settings -> logic = $data["logic"];
+                $user_settings -> max_app = $data["max_app"];
+                $user_settings -> monday = $data["monday"];
+                $user_settings -> tuesday = $data["tuesday"];
+                $user_settings -> wednesday = $data["wednesday"];
+                $user_settings -> thursday = $data["thursday"];
+                $user_settings -> friday = $data["friday"];
+                $user_settings -> saturday = $data["saturday"];
+                $user_settings -> sunday = $data["sunday"];
+                $user_settings -> max_duration_swicth = $data["max_duration_swicth"];
+                $user_settings -> max_duration_time = $data["max_duration_time"];
+                $user_settings ->min_time_switch = $data["min_time_switch"];
+                $user_settings ->min_time = $data["min_time"];
+                $user_settings -> app_fixed_duration_switch = $data["app_fixed_duration_switch"];
+                $user_settings -> app_fixed_duration = $data["app_fixed_duration"];
+                $user_settings -> allow_dm = $data["allow_dm"];
+                $user_settings -> updated_at = Carbon::now();
+                $user_settings ->save();
+                
                 return response()->json([
                     "message"=>"setting are saved"
 

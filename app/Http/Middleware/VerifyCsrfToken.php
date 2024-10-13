@@ -16,7 +16,7 @@ class VerifyCsrfToken extends Middleware
         "/signin_user",
          "/verifying",
          "/login_user",
-  
+        "/settings/saveSettings"
 
     ];
 }

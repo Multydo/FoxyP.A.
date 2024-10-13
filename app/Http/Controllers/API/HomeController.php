@@ -112,17 +112,35 @@ class HomeController extends Controller{
                                 ->where('time_from','>=',$todaydate)
                                 ->pluck('date_part')
                                 ->toArray();
+                            $name = User::where("id",$userId)->select("fname")->first();
+                            $work_days = setting::where("owner_id",$userId)
+                                ->select("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
+                                ->first();
+                                $data = [
+                                    "dates"=> $dates,
+                                    "name"=>$name['fname'],
+                                    "work_days"=>[
+                                        "monday"=>$work_days['monday'],
+                                        "tuesday"=>$work_days['tuesday'],
+                                        "wednesday"=>$work_days['wednesday'],
+                                        "thursday"=>$work_days['thursday'],
+                                        "friday"=>$work_days['friday'],
+                                        "saturday"=>$work_days['saturday'],
+                                        "sunday"=>$work_days['sunday']
+                                    ]  
+                                ];
+                            
                             if($dates){
                                 return response()->json([
                                     "message" => "appointments found for user",
                                     "status" => true,
-                                    "data" => $dates
+                                    "data" => $data
                                 ],200);
                             }else{
                                 return response()->json([
                                     "message" => "no appointments found for user",
                                     "status" => false,
-                                    "data" => ""
+                                    "data" => $data
                                 ],200);
                             }
 
