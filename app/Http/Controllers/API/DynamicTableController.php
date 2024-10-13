@@ -9,20 +9,23 @@ use App\Models\User;
 use App\Models\setting;
 use Throwable;
 use App\Models\followers_user;
-use App\Http\Controllers\API\getUserId;
+use App\Http\Controllers\API\UserController;
 
-class SetUserTables extends Controller
+class DynamicTableController extends Controller
 {
-    public function UserTableLucher( $usertoken){
-        $get_user_id = new getUserId;
+   public function UserTableLucher( $request){
+        $usertoken = $request ->bearerToken();
+        $get_user_id = new UserController;
         $userId_json = $get_user_id -> getId($usertoken);
         $userId = $userId_json;
+        $timezone = $request["timezone"];
         
         $result1 = $this -> UserAppointments($userId);
         $result2 = $this -> UserPeople($userId);
         $result3 = $this -> UserFollower($userId);
+        $result4 = $this -> fillSettings($timezone ,$usertoken);
 
-        if ($result1 && $result2 && $result3){
+        if ($result1 && $result2 && $result3 && $result4){
             return true;
         }else{
             return false;
@@ -109,7 +112,7 @@ class SetUserTables extends Controller
     }
 
     public function fillSettings($timezone ,$usertoken){
-        $get_user_id = new getUserId;
+        $get_user_id = new UserController;
         $userId_json = $get_user_id ->getId($usertoken);
         $userId = $userId_json;
 
@@ -182,6 +185,4 @@ class SetUserTables extends Controller
         }
 
     }
-
-
 }

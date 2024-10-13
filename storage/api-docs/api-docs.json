@@ -1,0 +1,2216 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Foxy P.A. APIs",
+        "description": "Foxy P.A. helps users organize and manage appointments by allowing them to search for clinics, follow doctors, set appointments, and receive notifications. It provides various time management modes, lets users add titles and descriptions to appointment requests, and enables anyone signed in to set or receive appointments.",
+        "version": "2.0.0"
+    },
+    "paths": {
+        "/api/home": {
+            "post": {
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Retrieve upcoming appointment dates",
+                "description": "Validates the user's token and returns upcoming appointment dates if the user is verified.",
+                "operationId": "master",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "timezone": {
+                                        "description": "User's timezone",
+                                        "type": "string",
+                                        "example": "3"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Appointments found or not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "appointments found for user"
+                                        },
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "2023-10-21"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "token expired"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/home/showDetails": {
+            "post": {
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Retrieve appointment details for a specific date",
+                "description": "Returns appointment details for the specified date if it's today or in the future.",
+                "operationId": "showDetails",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "r_date": {
+                                        "description": "Requested date in YYYY-MM-DD format",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-10-21"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Appointment details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "time_data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "start": {
+                                                        "type": "string",
+                                                        "example": "09:00:00"
+                                                    },
+                                                    "end": {
+                                                        "type": "string",
+                                                        "example": "10:00:00"
+                                                    },
+                                                    "app_id": {
+                                                        "type": "string",
+                                                        "example": "1234"
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Meeting with client"
+                                                    },
+                                                    "desc": {
+                                                        "type": "string",
+                                                        "example": "Discuss project requirements"
+                                                    },
+                                                    "aid": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "5678"
+                                                    },
+                                                    "fname": {
+                                                        "type": "string",
+                                                        "example": "John"
+                                                    },
+                                                    "lname": {
+                                                        "type": "string",
+                                                        "example": "Doe"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - No appointments found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bad Request"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "418": {
+                        "description": "Requested date is in the past",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The requested date is in the past, are you a time traveler?"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/people/getPeople": {
+            "get": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Get list of users the current user is following",
+                "description": "Returns a list of users that the authenticated user is following.",
+                "operationId": "getFollowing",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "users found"
+                                        },
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "fname": {
+                                                        "type": "string",
+                                                        "example": "John"
+                                                    },
+                                                    "lname": {
+                                                        "type": "string",
+                                                        "example": "Doe"
+                                                    },
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 123
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user not found or token is broken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/people/followUser": {
+            "post": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Follow a user",
+                "description": "Allows the authenticated user to follow another user.",
+                "operationId": "followPerson",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "other_user"
+                                ],
+                                "properties": {
+                                    "other_user": {
+                                        "description": "ID of the user to follow",
+                                        "type": "integer",
+                                        "example": 456
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User followed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user followed successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user not found or token is broken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/people/unfollowPeople": {
+            "post": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Unfollow a user",
+                "description": "Allows the authenticated user to unfollow another user.",
+                "operationId": "unfollowPeople",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "other_user"
+                                ],
+                                "properties": {
+                                    "other_user": {
+                                        "description": "ID of the user to unfollow",
+                                        "type": "integer",
+                                        "example": 456
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User unfollowed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user unfollowed"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user not found or token is broken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/people/searchPeople": {
+            "post": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Search for people",
+                "description": "Allows the authenticated user to search for other users.",
+                "operationId": "searchPeople",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "search"
+                                ],
+                                "properties": {
+                                    "search": {
+                                        "description": "Search term",
+                                        "type": "string",
+                                        "example": "John"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Search results",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "fname": {
+                                                        "type": "string",
+                                                        "example": "John"
+                                                    },
+                                                    "lname": {
+                                                        "type": "string",
+                                                        "example": "Doe"
+                                                    },
+                                                    "f_status": {
+                                                        "type": "string",
+                                                        "example": "following"
+                                                    },
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 123
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user not found or token is broken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/getinfo": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get the user's profile",
+                "description": "Retrieves the profile information of the authenticated user.",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "User data found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user data found"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "fname": {
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "lname": {
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "johndoe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/changename": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the user's name",
+                "description": "Updates the first and last name of the authenticated user.",
+                "operationId": "changeName",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "fname",
+                                    "lname"
+                                ],
+                                "properties": {
+                                    "fname": {
+                                        "description": "First name",
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lname": {
+                                        "description": "Last name",
+                                        "type": "string",
+                                        "example": "Doe"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User name saved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user name saved"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/changeemail": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the user's email",
+                "description": "Updates the email address of the authenticated user and sends a verification code.",
+                "operationId": "changeEmail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "New email address",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "newemail@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email saved, verification needed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user email saved and need verification"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Email already in use",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "email already in use"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "internal server error (problem in sending otp email)"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/verifynewemail": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Verify the new email address",
+                "description": "Verifies the new email address using the provided verification code.",
+                "operationId": "verifyNewEmail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "description": "Verification code",
+                                        "type": "string",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Email verified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user new email is set to start using it"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Verification code does not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "verification code does not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile/changepass": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Change the user's password",
+                "description": "Updates the password of the authenticated user.",
+                "operationId": "changePassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "old_password",
+                                    "new_pass_1",
+                                    "new_pass_2"
+                                ],
+                                "properties": {
+                                    "old_password": {
+                                        "description": "Old password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldpass123"
+                                    },
+                                    "new_pass_1": {
+                                        "description": "New password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newpass123"
+                                    },
+                                    "new_pass_2": {
+                                        "description": "Confirm new password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newpass123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Password changed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "new pass is set"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "New passwords do not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "the new pass does not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Old password does not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "old pass does not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/requests/setrequest": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Set up a request",
+                "description": "Sets up a request and returns necessary information about the user and their availability.",
+                "operationId": "setRequest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "other_user"
+                                ],
+                                "properties": {
+                                    "other_user": {
+                                        "description": "ID of the other user",
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request information retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "userId": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "info": {
+                                            "description": "User's work hours and time zone",
+                                            "properties": {
+                                                "work_from": {
+                                                    "type": "string",
+                                                    "example": "08:00:00"
+                                                },
+                                                "work_to": {
+                                                    "type": "string",
+                                                    "example": "17:00:00"
+                                                },
+                                                "time_zone": {
+                                                    "type": "string",
+                                                    "example": "UTC"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "full_days": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "2023-10-21"
+                                            }
+                                        },
+                                        "info_day": {
+                                            "description": "User's work days",
+                                            "properties": {
+                                                "monday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "tuesday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "wednesday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "thursday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "friday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "saturday": {
+                                                    "type": "string",
+                                                    "example": "closed"
+                                                },
+                                                "sunday": {
+                                                    "type": "string",
+                                                    "example": "closed"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/requests/checkDate": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Check date availability",
+                "description": "Checks if a specific date is available for an appointment with the specified user.",
+                "operationId": "checkDateAvailability",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "userId",
+                                    "r_date"
+                                ],
+                                "properties": {
+                                    "userId": {
+                                        "description": "ID of the user to check availability with",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "r_date": {
+                                        "description": "Requested date in YYYY-MM-DD format",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-10-25"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Date is available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "userId": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "r_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2023-10-25"
+                                        },
+                                        "time_data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "start": {
+                                                        "type": "string",
+                                                        "example": "09:00:00"
+                                                    },
+                                                    "end": {
+                                                        "type": "string",
+                                                        "example": "10:00:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "work_data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "start": {
+                                                        "type": "string",
+                                                        "example": "08:00:00"
+                                                    },
+                                                    "end": {
+                                                        "type": "string",
+                                                        "example": "17:00:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Date is in the past",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The requested date is in the past. Please select a suitable date."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Date is full or closed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The requested date is full/closed. Please select a different date."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/requests/sendRequest": {
+            "post": {
+                "tags": [
+                    "Request"
+                ],
+                "summary": "Send an appointment request",
+                "description": "Sends a request to schedule an appointment with the specified user.",
+                "operationId": "sendRequest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "userId",
+                                    "r_date",
+                                    "starting_t",
+                                    "ending_t",
+                                    "r_title",
+                                    "r_desc"
+                                ],
+                                "properties": {
+                                    "userId": {
+                                        "description": "ID of the user to send the request to",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "r_date": {
+                                        "description": "Requested date in YYYY-MM-DD format",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-10-25"
+                                    },
+                                    "starting_t": {
+                                        "description": "Starting time in HH:MM:SS format",
+                                        "type": "string",
+                                        "example": "10:00:00"
+                                    },
+                                    "ending_t": {
+                                        "description": "Ending time in HH:MM:SS format",
+                                        "type": "string",
+                                        "example": "11:00:00"
+                                    },
+                                    "r_title": {
+                                        "description": "Title of the appointment",
+                                        "type": "string",
+                                        "example": "Meeting"
+                                    },
+                                    "r_desc": {
+                                        "description": "Description of the appointment",
+                                        "type": "string",
+                                        "example": "Discuss project requirements"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Appointment request sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "all good to go"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Time input wrong or appointment conflicts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "time inputted wrong or appointment time conflicts with other appointments"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Time is in the past",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The requested time is in the past. Please select a suitable time."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/settings/getSettings": {
+            "post": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Get user settings",
+                "description": "Retrieves the settings for the authenticated user.",
+                "operationId": "getSettings",
+                "responses": {
+                    "200": {
+                        "description": "User settings retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user settings were found"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "owner_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "work_from": {
+                                                    "type": "string",
+                                                    "example": "08:00:00"
+                                                },
+                                                "work_to": {
+                                                    "type": "string",
+                                                    "example": "17:00:00"
+                                                },
+                                                "time_zone": {
+                                                    "type": "string",
+                                                    "example": "UTC"
+                                                },
+                                                "break_time": {
+                                                    "type": "string",
+                                                    "example": "00:30:00"
+                                                },
+                                                "max_app": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "monday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "tuesday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "wednesday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "thursday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "friday": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "saturday": {
+                                                    "type": "string",
+                                                    "example": "closed"
+                                                },
+                                                "sunday": {
+                                                    "type": "string",
+                                                    "example": "closed"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "no content found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or broken token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user was not found or a broken token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/settings/saveSettings": {
+            "post": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Save user settings",
+                "description": "Saves the settings for the authenticated user.",
+                "operationId": "saveSettings",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "work_from": {
+                                        "type": "string",
+                                        "example": "08:00:00"
+                                    },
+                                    "work_to": {
+                                        "type": "string",
+                                        "example": "17:00:00"
+                                    },
+                                    "time_zone": {
+                                        "type": "string",
+                                        "example": "UTC"
+                                    },
+                                    "break_time": {
+                                        "type": "string",
+                                        "example": "00:30:00"
+                                    },
+                                    "max_app": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "monday": {
+                                        "type": "string",
+                                        "example": "accepted"
+                                    },
+                                    "tuesday": {
+                                        "type": "string",
+                                        "example": "accepted"
+                                    },
+                                    "wednesday": {
+                                        "type": "string",
+                                        "example": "accepted"
+                                    },
+                                    "thursday": {
+                                        "type": "string",
+                                        "example": "accepted"
+                                    },
+                                    "friday": {
+                                        "type": "string",
+                                        "example": "accepted"
+                                    },
+                                    "saturday": {
+                                        "type": "string",
+                                        "example": "closed"
+                                    },
+                                    "sunday": {
+                                        "type": "string",
+                                        "example": "closed"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Settings saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "settings are saved"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "internal server error (problem is unclear)"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or broken token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user was not found or a broken token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/register_user": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Register a new user",
+                "description": "Registers a new user and sends a verification email.",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "fname",
+                                    "lname",
+                                    "username",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "fname": {
+                                        "description": "First name",
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lname": {
+                                        "description": "Last name",
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "username": {
+                                        "description": "Username",
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "description": "Email address",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "description": "Password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user registered"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "token_value_here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Email already exists but not verified, verification code sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "email already exists but not verified, verification code sent"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email or username already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user email already exists"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/verify": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Verify a user's email",
+                "description": "Verifies a user's email address using the verification code sent to their email.",
+                "operationId": "verifyUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "description": "Verification code sent to user's email",
+                                        "type": "string",
+                                        "example": "1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user good to go"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Verification code does not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "verification code does not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User already verified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user already is verified"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/login_user": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Login a user",
+                "description": "Authenticates a user and returns a token.",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "timezone"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "User's email address",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "description": "User's password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123!"
+                                    },
+                                    "timezone": {
+                                        "description": "User's timezone",
+                                        "type": "string",
+                                        "example": "UTC"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user logged in"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "token_value_here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "email or password do not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/forgotpass": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Reset user password",
+                "description": "Resets the user's password using a verification code.",
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code",
+                                    "pass_1",
+                                    "pass_2"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "description": "Verification code sent to user's email",
+                                        "type": "string",
+                                        "example": "1234"
+                                    },
+                                    "pass_1": {
+                                        "description": "New password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewPassword123!"
+                                    },
+                                    "pass_2": {
+                                        "description": "Confirm new password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Password reset successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "new pass is set"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Verification code does not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "verification code does not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Passwords do not match",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "passwords do not match"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/forgotpass/submit": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Send password reset code",
+                "description": "Sends a verification code to the user's email for password reset.",
+                "operationId": "sendPasswordResetCode",
+                "responses": {
+                    "200": {
+                        "description": "Verification code sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Verification code sent"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your bearer token in the format **Bearer &lt;token&gt;**",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Home",
+            "description": "Operations related to home functionalities"
+        },
+        {
+            "name": "People",
+            "description": "Operations related to people (followers, following, etc.)"
+        },
+        {
+            "name": "Profile",
+            "description": "Operations related to user profiles"
+        },
+        {
+            "name": "Request",
+            "description": "Operations related to appointment requests"
+        },
+        {
+            "name": "Settings",
+            "description": "Operations related to user settings"
+        },
+        {
+            "name": "User",
+            "description": "Operations related to user authentication and account management"
+        }
+    ]
+}
